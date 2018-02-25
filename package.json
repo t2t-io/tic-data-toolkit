@@ -1,0 +1,33 @@
+{
+  "name": "tic-data-toolkit",
+  "author": {
+    "name": [
+      "Yagamy"
+    ],
+    "email": "yagamy@gmail.com",
+    "url": "https://github.com/yagamy4680"
+  },
+  "description": "Toolkits for data schema design and simulation for TiC.",
+  "version": "0.0.1",
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "main": "lib/index.js",
+  "engines": {
+    "node": "0.10.x",
+    "npm": "1.4.x"
+  },
+  "dependencies": {},
+  "scripts": {
+    "build": "rm -vf ./lib/*.js;\nfind src -name '*.ls' | xargs -I{} sh -c \"echo compiling {} ...; cat {} | lsc -cp > lib/\\$(basename {} .ls).js\""
+  },
+  "devDependencies": {
+    "lodash": "*",
+    "livescript": "*",
+    "yargs": "*",
+    "async": "*",
+    "mermaid.cli": "*"
+  },
+  "optionalDependencies": {}
+}

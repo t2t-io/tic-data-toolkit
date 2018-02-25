@@ -1,2 +1,3 @@
 # tic-data-toolkit
-Toolkits for Data Design in TiC
+
+Toolkits for data schema design and simulation for TiC. More rationales, please refer to [DESIGN.md](docs/DESIGN.md).

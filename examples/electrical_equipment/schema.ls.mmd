@@ -1,0 +1,16 @@
+classDiagram
+ElectricalEquipment <|-- AirCondition
+ElectricalEquipment <|-- Humidier
+ElectricalEquipment : power_consumption : w
+ElectricalEquipment : power_consumption : wh_cumulative
+ElectricalEquipment : power_consumption : wh_diff
+ElectricalEquipment : --------
+ElectricalEquipment : --------
+AirCondition : user_settings : operation_power_saving
+AirCondition : user_settings : operation_mode
+AirCondition : user_settings : target_temperature
+AirCondition : user_settings : air_flow_rate_setting
+AirCondition : --------
+Humidier : user_preferences : operation_mode
+Humidier : user_preferences : target_humidity
+Humidier : --------
