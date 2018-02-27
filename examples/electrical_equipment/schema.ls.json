@@ -9,7 +9,9 @@
         "wh_cumulative",
         "wh_diff"
       ],
-      "power_switch": []
+      "power_switch": [
+        "on"
+      ]
     }
   },
   {
@@ -28,7 +30,9 @@
         "wh_cumulative",
         "wh_diff"
       ],
-      "power_switch": []
+      "power_switch": [
+        "on"
+      ]
     }
   },
   {
@@ -45,7 +49,9 @@
         "wh_cumulative",
         "wh_diff"
       ],
-      "power_switch": []
+      "power_switch": [
+        "on"
+      ]
     }
   }
 ]
