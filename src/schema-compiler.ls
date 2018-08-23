@@ -43,6 +43,12 @@ GET_SENSOR_FIELD_NAMES_FOR_MARKDOWN = (fields) ->
   names = [ "`#{n}`" for n in names ]
   return names.join ", "
 
+EXTRACT_FIELD_CURRYING = (name, data) -->
+  return data unless name?
+  return data unless \string is typeof name
+  return data if name is ''
+  return data[name]
+
 
 class Class
   (@clazz, @manager) ->
@@ -70,10 +76,11 @@ class Class
     parent = if superclass? then superclass.name else null
     return {name, parent, p_type, sensor-types}
 
-  to-output-json: ->
+  to-output-json: (simple=no) ->
     {name, superclass, p_type, sensor-types} = self = @
+    func = if simple then (EXTRACT_FIELD_CURRYING 'field') else (EXTRACT_FIELD_CURRYING '')
     parent = if superclass? then superclass.name else null
-    s_types = { [k, [f.field for f in v]] for k, v of sensor-types }
+    s_types = { [k, [(func f) for f in v]] for k, v of sensor-types }
     return {name, parent, p_type, s_types}
 
 
