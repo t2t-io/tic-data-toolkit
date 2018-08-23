@@ -25,7 +25,7 @@ author:
   email: 'yagamy@gmail.com'
   url: 'https://github.com/yagamy4680'
 
-description: 'Toolkits for data schema design and simulation for TiC.'
+description: 'Toolkits for data schema design and simulation for cloud (TIC) of TicTacToe'
 
 version: \0.0.1
 
@@ -39,7 +39,13 @@ engines:
   node: \0.10.x
   npm: \1.4.x
 
-dependencies: {}
+dependencies:
+  lodash: \*
+  livescript: \*
+  async: \*
+  yargs: \*
+  moment: \*
+  \yap-simple-logger : \yagamy4680/yap-simple-logger
 
 scripts:
   build: """
@@ -48,10 +54,6 @@ scripts:
   """
 
 devDependencies:
-  lodash: \*
-  livescript: \*
-  yargs: \*
-  async: \*
   \mermaid.cli : \*
 
 optionalDependencies: {}
