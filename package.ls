@@ -45,6 +45,9 @@ dependencies:
   async: \*
   yargs: \*
   moment: \*
+  esprima: \*
+  marked: \*
+  \marked-terminal : \*
   \yap-simple-logger : \yagamy4680/yap-simple-logger
 
 scripts:

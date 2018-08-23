@@ -1,12 +1,13 @@
 #!/usr/bin/env lsc
 #
 logger = require \yap-simple-logger
-logger.init \tic-dk, __filename
+logger.init \tic-data-toolkit, __filename
 
 argv =
   (require \yargs)
     .alias \h, \help
     .command require \../src/schema2js
+    .command require \../src/schema2spec
     .demand 1
     .strict!
     .help!

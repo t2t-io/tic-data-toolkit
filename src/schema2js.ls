@@ -5,7 +5,7 @@ require! <[fs path]>
 
 module.exports = exports =
   command: "schema2js"
-  describe: "compile schema source (written in livescript) to javascript"
+  describe: "compile schema source to javascript (ls => js)"
 
   builder: (yargs) ->
     yargs
