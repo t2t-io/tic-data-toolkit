@@ -6,7 +6,6 @@ TerminalRenderer = require \marked-terminal
 const BASE_CLASSNAME = \SchemaBaseClass
 const DEFAULT_PARSER_OPTIONS = {verbose: no}
 
-
 GENERATE_NEW_JAVASCRIPT = (javascript, class-names) ->
   xs = javascript.split '\n'
   xs = [ "  #{x}" for x in xs when not x.startsWith "module.exports =" ]
@@ -35,42 +34,11 @@ TRAVERSE_TREE = (name, classes) ->
   return [name] ++ ys
 
 
-
-
-class Collection
-  (@name, @opts) ->
-    @objects = []
-    @object-map = {}
+class SchemaBaseClass
+  hello: {}
+  attributes: {}
+  ->
     return
-
-  add: (o) ->
-    {name} = o
-    @objects.push o
-    @object-map[name] = o
-    return o
-
-  add-objects: (objects) ->
-    self = @
-    [ self.add o for o in objects ]
-    return self
-
-  get-objects: ->
-    return @objects
-
-  get-object-as-dict: ->
-    return @object-map
-
-  apply-object-func: (func-name, done) ->
-    {objects} = self = @
-    f = (o, cb) ->
-      func = o[func-name]
-      return cb "missing function #{func-name}" unless func?
-      return cb "missing function #{func} with correct type" unless \function is typeof func
-      return func.apply o, [cb]
-    return async.eachSeries objects, f, done
-
-
-
 
 
 class AttributeField
@@ -148,17 +116,35 @@ class PeripheralType
     return async.eachSeries attrs, f, done
 
 
-class PeripheralType
+class PeripheralTypeClass
   (@parser, @verbose, @clazz) ->
+    {displayName} = clazz
+    @classname = displayName
+    @name = lodash.snakeCase displayName
+    @ptc-children = []
+    @ptc-parent = null
+    @object = null
     return
 
+  add-child: (child) ->
+    @ptc-children.push child
 
+  dbg: (message) ->
+    return DBG message if @verbose
 
-class SchemaBaseClass
-  ->
-    @hello = {}
-    @attributes = {}
+  dbg-hierachy: ->
+    {name, ptc-children, ptc-parent} = self = @
+    ptc-children = [ c.name.cyan for c in ptc-children ]
+    ptc-parent = if ptc-parent? then ptc-parent.name else "<<ROOT>>"
+    text = if ptc-children.length is 0 then "" else " <- [#{ptc-children.join ', '}]"
+    self.dbg "#{ptc-parent.green} <- #{name.yellow}#{text}"
 
+  load: ->
+    {parser, clazz, classname, name} = self = @
+    self.ptc-parent = ptc-parent = if classname is BASE_CLASSNAME then null else parser.get-ptc-by-classname clazz.superclass.displayName
+    self.ptc-parent.add-child self if ptc-parent?
+    self.ptc-parent-name = ptc-parent-name = if ptc-parent? then ptc-parent.name else null
+    self.object = new clazz!
 
 
 class SchemaParser
@@ -216,9 +202,23 @@ class SchemaParser
     self.dbg "results.b => #{JSON.stringify xs}"
     ys = [ x.yellow for x in xs ]
     INFO "load classes in order: #{xs.join ', '}"
-    highlighted = HIGHLIGHT_JAVASCRIPT modified
-    javascript = modified
+    classes[BASE_CLASSNAME] = SchemaBaseClass
+    self.loaded-class-names = names = [BASE_CLASSNAME] ++ xs
+    self.loaded-classes = classes
+    self.p-types = types = [ (new PeripheralTypeClass self, verbose, classes[n]) for n in names ]
+    self.p-type-map-by-name = {[t.name, t] for t in types}
+    self.p-type-map-by-classname = {[t.classname, t] for t in types}
+    [ t.load! for t in types ]
+    [ t.dbg-hierachy! for t in types ]
+    self.js-source = javascript = modified
+    self.js-highlighted = highlighted = HIGHLIGHT_JAVASCRIPT javascript
     return {javascript, highlighted}
+
+  get-ptc-by-name: (name) ->
+    return @p-type-map-by-name[name]
+
+  get-ptc-by-classname: (classname) ->
+    return @p-type-map-by-classname[classname]
 
     /*
     types = [ (new PeripheralType clazz, self) for name, clazz of schema ]
