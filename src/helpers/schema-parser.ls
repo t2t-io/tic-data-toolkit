@@ -35,85 +35,93 @@ TRAVERSE_TREE = (name, classes) ->
 
 
 class SchemaBaseClass
-  hello: {}
-  attributes: {}
   ->
+    @attributes = {}
+
+
+class FieldTypeClass
+  (@parser, @stc, @definition, @index) ->
     return
 
+  load: ->
+    {parser, stc, definition, index} = self = @
+    {ptc} = stc
+    prefix = "#{ptc.name.cyan}/_/#{stc.name.green}"
+    throw new Error "#{prefix} has no field definition" unless definition?
+    {field, writeable, value, unit, description} = definition
+    throw new Error "#{prefix} has no field name" unless field?
+    self.name = name = field
+    prefix = "#{prefix}/#{name.yellow}"
+    # console.log "#{prefix}: (FieldTypeClass) loading ..."
+    unit = '' unless unit? and \string is typeof unit
+    description = '' unless description? and \string is typeof description
+    writeable = no unless writeable? and \boolean is typeof writeable
+    throw new Error "#{prefix} has no field value definition" unless value?
+    throw new Error "#{prefix} has field value definition but not array" unless Array.isArray value
+    throw new Error "#{prefix} has field value definition but no elements" if value.length is 0
+    [type, range, incremental] = value
+    throw new Error "#{prefix} has field value definition but no type as 1st element" unless type? and \string is typeof type
+    throw new Error "#{prefix} has field value definition but unsupported type: #{type}" unless type in <[boolean enum float int]>
+    throw new Error "#{prefix} has field value definition but no range as 2nd element" unless range? and Array.isArray range
+    if type is \boolean
+      throw new Error "#{prefix} has field value as boolean, but the number of elements in range is not 2 => #{range.length}" unless range.length is 2
+      [false_alias, true_alias] = range
+      throw new Error "#{prefix} has field value as boolean, but alias for _false_ is not string: #{false_alias}(#{typeof false_alias})" unless \string is typeof false_alias
+      throw new Error "#{prefix} has field value as boolean, but alias for _true_ is not string: #{true_alias}(#{typeof true_alias})" unless \string is typeof true_alias
+    else if type is \enum
+      throw new Error "#{prefix} has field value as enum, but no elements of range array" if range.length is 0
+    else if type in <[float int]>
+      throw new Error "#{prefix} has field value as float, but the number of elements in range is not 2 => #{range.length}" unless range.length is 2
+      [lower, upper] = range
+      throw new Error "#{prefix} has field value as float, but lower bound is not number: #{lower}(#{typeof lower})" unless \number is typeof lower
+      throw new Error "#{prefix} has field value as float, but upper bound is not number: #{upper}(#{typeof upper})" unless \number is typeof upper
+      throw new Error "#{prefix} has field value as float, but upper (#{upper}) is smaller than lower (#{lower})" if upper < lower
+    self.writeable = writeable
+    self.unit = unit
+    self.value = {type, range, incremental}
+    self.description = description
+    xs = lodash.merge {}, definition
+    delete xs['field']
+    delete xs['writeable']
+    delete xs['value']
+    delete xs['unit']
+    delete xs['description']
+    names = [ k for k, v of xs when not k.startsWith "$" ]
+    throw new Error "#{prefix} has annotations that are not started with '$': #{names.join ','}" if names.length > 0
+    self.annotations = xs
 
-class AttributeField
-  (@parent) ->
+  to-json: ->
+    {name, writeable, value, annotations} = self = @
+    return {name, writeable, value, annotations}
+
+
+
+class SensorTypeClass
+  (@parser, @ptc, @name, @identities, @fields) ->
+    # console.log "#{ptc.name}/????/#{name}/[#{identities.join ','}] => #{JSON.stringify fields}"
     return
 
-
-class Attribute
-  # name => `power_consumption`
-  # id   => `00`
-  (@parent, @name, @id, @settings) ->
-    # INFO "attribute/constructor => #{name}/#{id} => #{JSON.stringify settings}"
-    @fields = []
-    @field-map = {}
-
-  init: (done) ->
-    {name, id, settings} = self = @
-    INFO "#{name}/#{id} => #{JSON.stringify settings}"
-    return done!
-
-
-class AttributeCollection
-  (@parent, @attribute-name) ->
-    @attributes = []
-    @attribute-map = {}
-
-  init: (done) ->
-    {attribute-name, attributes, parent} = self = @
-    {name} = parent
-    f = (a, cb) ->
-      # INFO "#{name}/#{attribute-name}: initialize attribute #{a?}"
-      INFO "#{name}/#{attribute-name}: initialize attribute #{a.name}/#{a.id}"
-      return a.init cb
-    INFO "#{name}/#{attribute-name} init #{attributes.length} attributes ..."
-    return async.eachSeries attributes, f, done
-
-  add-attribute: (attr-name, id, settings) ->
-    {attribute-name, attributes, attribute-map} = self = @
-    return WARN "unexpected attribute missing _name_ is added to collection for #{attribute-name}" unless attr-name?
-    return WARN "unexpected attribute missing __id__ is added to collection for #{attribute-name}" unless id?
-    return WARN "unexpected attribute #{attr-name}/#{id} is added to collection for #{attribute-name}" unless attr-name is attribute-name
-    x = attribute-map[id]
-    return WARN "unexpected attribute #{attr-name}/#{id} was existed in the collection for #{attribute-name}" if x?
-    attr = new Attribute self, attr-name, id, settings
-    self.attributes.push attr
-    self.attribute-map[id] = attr
-    return attr
-
-
-class PeripheralType
-  (@clazz, @parser) ->
-    {displayName} = clazz
-    @class_name = displayName
-    @name = lodash.snakeCase displayName
-
-    @collections = {}
-    INFO "load #{@name}/#{@class_name} ..."
+  load: ->
+    {parser, ptc, name, identities, fields} = self = @
+    prefix = "#{ptc.name.cyan}/_/#{name.green}"
+    # console.log "#{prefix}: (SensorTypeClass) loading ..."
+    throw new Error "#{prefix} has no s_id list" unless identities?
+    throw new Error "#{prefix} has s_id but not array" unless Array.isArray identities
+    throw new Error "#{prefix} has s_id list but no elements" if identities.length is 0
+    throw new Error "#{prefix} has s_id list has no string element" unless \string is typeof identities[0]
+    throw new Error "#{prefix} has no fields" unless fields?
+    throw new Error "#{prefix} has field list but not array" unless Array.isArray fields
+    throw new Error "#{prefix} has field list but no elements" if fields.length is 0
+    self.ftc-list = xs = [ (new FieldTypeClass parser, self, f, i) for let f, i in fields ]
+    [ x.load! for x in xs ]
     return
 
-  init: (done) ->
-    {clazz} = self = @
-    self.ref = ref = new clazz!
-    # self.attributes = attributes = ref.attributes
-    for name, identities of ref.attributes
-      settings = ref[name]
-      for id in identities
-        # INFO "#{self.name}: #{name}/#{id} => #{JSON.stringify settings}"
-        ac = self.collections[name]
-        ac = new AttributeCollection self, name unless ac?
-        ac.add-attribute name, id, settings
-        self.collections[name] = ac
-      # INFO "#{name}: #{k}/#{v} => #{JSON.stringify ref[k]}"
-    attrs = [ a for name, a of self.collections ]
-    f = (ac, cb) -> return ac.init cb
-    return async.eachSeries attrs, f, done
+  to-json: ->
+    {name, identities, ftc-list} = self = @
+    fields = [ f.to-json! for f in ftc-list ]
+    s_type = name
+    s_id_list = identities
+    return {s_type, s_id_list, fields}
 
 
 class PeripheralTypeClass
@@ -144,7 +152,19 @@ class PeripheralTypeClass
     self.ptc-parent = ptc-parent = if classname is BASE_CLASSNAME then null else parser.get-ptc-by-classname clazz.superclass.displayName
     self.ptc-parent.add-child self if ptc-parent?
     self.ptc-parent-name = ptc-parent-name = if ptc-parent? then ptc-parent.name else null
-    self.object = new clazz!
+    {attributes} = self.object = obj = new clazz!
+    # console.log "#{name.cyan}: (PeripheralTypeClass) loading ... => #{JSON.stringify attributes}"
+    throw new Error "#{ptc.name.cyan} has no defined `attributes`" unless attributes? and \object is typeof attributes
+    self.stc-list = xs = [ (new SensorTypeClass parser, self, s_type, s_id_list, obj[s_type]) for s_type, s_id_list of attributes ]
+    [ x.load! for x in xs ]
+
+  to-json: ->
+    {name, classname, ptc-parent, stc-list} = self = @
+    p_type_parent = if ptc-parent? then ptc-parent.name else null
+    p_type = name
+    sensors = [ s.to-json! for s in stc-list ]
+    return {p_type, p_type_parent, classname, sensors}
+
 
 
 class SchemaParser
@@ -212,18 +232,13 @@ class SchemaParser
     [ t.dbg-hierachy! for t in types ]
     self.js-source = javascript = modified
     self.js-highlighted = highlighted = HIGHLIGHT_JAVASCRIPT javascript
-    return {javascript, highlighted}
+    self.jsonir = jsonir = [ p.to-json! for p in types ]
+    return {javascript, highlighted, jsonir}
 
   get-ptc-by-name: (name) ->
     return @p-type-map-by-name[name]
 
   get-ptc-by-classname: (classname) ->
     return @p-type-map-by-classname[classname]
-
-    /*
-    types = [ (new PeripheralType clazz, self) for name, clazz of schema ]
-    self.peripheral-types = (new Collection \peripheral-type, {verbose}).add-objects types
-    self.peripheral-types.apply-object-func \init, done
-    */
 
 module.exports = exports = {SchemaParser}

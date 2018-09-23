@@ -1,7 +1,8 @@
 /** Please Don't Modify These Lines Below   */
 /** --------------------------------------- */
 class SchemaBaseClass
-  attributes: {}
+  ->
+    @attributes = {}
 
 SchemaBaseClass = SCHEMA_BASE_CLASS if SCHEMA_BASE_CLASS?
 /** --------------------------------------- */
@@ -34,11 +35,13 @@ class SmartMeterEL2 extends SmartMeter
 
 class ElectricalEquipment extends SchemaBaseClass
   power_consumption:
-    * field: \value             , unit: \w    , description: "the currently-consumed energy"
-    * field: \value_cumulative  , unit: \Wh
-    * field: \value_diff        , unit: \Wh
-  power_switch:
+    * field: \value             , value: [\int, [0, 1000]], unit: \w    , description: "the currently-consumed energy"
+    * field: \value_cumulative  , value: [\int, [0, 1000]], unit: \Wh
+    * field: \value_diff        , value: [\int, [0, 1000]], unit: \Wh
+  power_switch: [
     * field: \value             , writeable: yes, value: [\boolean, <[off on]>]
+  ]
+
   ->
     super!
     @attributes[\power_consumption]  = <[00 01]>
