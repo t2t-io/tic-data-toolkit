@@ -28,7 +28,7 @@ module.exports = exports =
       .boolean <[v]>
       .epilogue """
         For example:
-          ./bin/cli.js schema2spec -o /tmp ./examples/electrical-equipment.ls
+          ./bin/cli.js schema2ir -o /tmp ./examples/electrical-equipment.ls
       """
 
   handler: (argv) ->

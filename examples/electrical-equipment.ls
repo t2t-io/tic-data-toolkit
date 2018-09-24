@@ -2,7 +2,7 @@
 /** --------------------------------------- */
 class SchemaBaseClass
   ->
-    @attributes = {}
+    @sensors = {}
 
 SchemaBaseClass = SCHEMA_BASE_CLASS if SCHEMA_BASE_CLASS?
 /** --------------------------------------- */
@@ -17,7 +17,7 @@ class ElectricalMeter extends SchemaBaseClass
     * field: \air_flow_rate         , writeable: yes, value: [\int    , [1, 5]]
   ->
     super!
-    @attributes[\user_settings] = <[00]>
+    @sensors[\user_settings] = <[00]>
 
 
 class SmartMeter extends ElectricalMeter
@@ -44,8 +44,8 @@ class ElectricalEquipment extends SchemaBaseClass
 
   ->
     super!
-    @attributes[\power_consumption]  = <[00 01]>
-    @attributes[\power_switch]       = <[00]>
+    @sensors[\power_consumption]  = <[00 01]>
+    @sensors[\power_switch]       = <[00]>
 
 
 class AirCondition extends ElectricalEquipment
@@ -56,7 +56,7 @@ class AirCondition extends ElectricalEquipment
     * field: \air_flow_rate         , writeable: yes, value: [\int    , [1, 5]]
   ->
     super!
-    @attributes[\user_settings] = <[00]>
+    @sensors[\user_settings] = <[00]>
 
 
 

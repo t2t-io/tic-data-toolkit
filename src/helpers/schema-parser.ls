@@ -36,7 +36,7 @@ TRAVERSE_TREE = (name, classes) ->
 
 class SchemaBaseClass
   ->
-    @attributes = {}
+    @sensors = {}
 
 
 class FieldTypeClass
@@ -152,10 +152,10 @@ class PeripheralTypeClass
     self.ptc-parent = ptc-parent = if classname is BASE_CLASSNAME then null else parser.get-ptc-by-classname clazz.superclass.displayName
     self.ptc-parent.add-child self if ptc-parent?
     self.ptc-parent-name = ptc-parent-name = if ptc-parent? then ptc-parent.name else null
-    {attributes} = self.object = obj = new clazz!
-    # console.log "#{name.cyan}: (PeripheralTypeClass) loading ... => #{JSON.stringify attributes}"
-    throw new Error "#{ptc.name.cyan} has no defined `attributes`" unless attributes? and \object is typeof attributes
-    self.stc-list = xs = [ (new SensorTypeClass parser, self, s_type, s_id_list, obj[s_type]) for s_type, s_id_list of attributes ]
+    {sensors} = self.object = obj = new clazz!
+    # console.log "#{name.cyan}: (PeripheralTypeClass) loading ... => #{JSON.stringify sensors}"
+    throw new Error "#{ptc.name.cyan} has no defined `sensors`" unless sensors? and \object is typeof sensors
+    self.stc-list = xs = [ (new SensorTypeClass parser, self, s_type, s_id_list, obj[s_type]) for s_type, s_id_list of sensors ]
     [ x.load! for x in xs ]
 
   to-json: ->

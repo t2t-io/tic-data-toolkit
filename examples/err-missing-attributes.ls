@@ -1,7 +1,7 @@
 /** Please Don't Modify These Lines Below   */
 /** --------------------------------------- */
 class SchemaBaseClass
-  attributes: {}
+  sensors: {}
 
 SchemaBaseClass = SCHEMA_BASE_CLASS if SCHEMA_BASE_CLASS?
 /** --------------------------------------- */
@@ -34,10 +34,10 @@ class AAA extends SchemaBaseClass
 
   ->
     super!
-    @attributes[\user_settings] = <[00 01]>
-    # @attributes[\user_settings] = [1]
-    # @attributes[\user_settings] = []
-    # @attributes[\user_settings] = null
+    @sensors[\user_settings] = <[00 01]>
+    # @sensors[\user_settings] = [1]
+    # @sensors[\user_settings] = []
+    # @sensors[\user_settings] = null
 
 ##
 # The root classes to be exported. Schema parser or SensorWeb shall read the list
