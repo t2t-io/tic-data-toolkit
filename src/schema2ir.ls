@@ -10,8 +10,8 @@ WRITE_FILE = (fullpath, text) ->
 
 
 module.exports = exports =
-  command: "schema2spec"
-  describe: "compile schema source to spec (ls => yaml)"
+  command: "schema2ir"
+  describe: "compile schema source to IR (intermediate representation)"
 
   builder: (yargs) ->
     yargs

@@ -7,7 +7,7 @@ argv =
   (require \yargs)
     .alias \h, \help
     .command require \../src/schema2js
-    .command require \../src/schema2spec
+    .command require \../src/schema2ir
     .demand 1
     .strict!
     .help!
