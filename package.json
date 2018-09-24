@@ -27,7 +27,8 @@
     "esprima": "*",
     "marked": "*",
     "marked-terminal": "*",
-    "yap-simple-logger": "yagamy4680/yap-simple-logger"
+    "yap-simple-logger": "yagamy4680/yap-simple-logger",
+    "js-yaml": "*"
   },
   "scripts": {
     "build": "rm -vf ./lib/*.js;\nfind src -name '*.ls' | xargs -I{} sh -c \"echo compiling {} ...; cat {} | lsc -cp > lib/\\$(basename {} .ls).js\""

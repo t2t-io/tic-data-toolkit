@@ -1,5 +1,5 @@
 require! <[vm]>
-require! <[lodash esprima livescript async marked]>
+require! <[lodash esprima livescript async marked js-yaml]>
 TerminalRenderer = require \marked-terminal
 {DBG, WARN, INFO, ERR} = global.get-logger __filename
 
@@ -162,8 +162,8 @@ class PeripheralTypeClass
     {name, classname, ptc-parent, stc-list} = self = @
     p_type_parent = if ptc-parent? then ptc-parent.name else null
     p_type = name
-    sensors = [ s.to-json! for s in stc-list ]
-    return {p_type, p_type_parent, classname, sensors}
+    sensor_types = [ s.to-json! for s in stc-list ]
+    return {p_type, p_type_parent, classname, sensor_types}
 
 
 
@@ -232,8 +232,10 @@ class SchemaParser
     [ t.dbg-hierachy! for t in types ]
     self.js-source = javascript = modified
     self.js-highlighted = highlighted = HIGHLIGHT_JAVASCRIPT javascript
-    self.jsonir = jsonir = [ p.to-json! for p in types ]
-    return {javascript, highlighted, jsonir}
+    peripheral_types = [ p.to-json! for p in types ]
+    self.jsonir = jsonir = {peripheral_types}
+    self.yamlir = yamlir = js-yaml.safeDump jsonir, {skipInvalid: yes}
+    return {javascript, highlighted, jsonir, yamlir}
 
   get-ptc-by-name: (name) ->
     return @p-type-map-by-name[name]

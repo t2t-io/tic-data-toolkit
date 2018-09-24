@@ -47,10 +47,11 @@ module.exports = exports =
     opts = {verbose}
     parser = new SchemaParser opts
     try
-      {javascript, highlighted, jsonir} = parser.parse text
+      {javascript, highlighted, jsonir, yamlir} = parser.parse text
     catch error
       return ERR error, "failed to parse #{file}"
     WRITE_FILE "#{output}/#{name}.js", javascript
     WRITE_FILE "#{output}/#{name}.js.colored", highlighted
     WRITE_FILE "#{output}/#{name}.ir.json", JSON.stringify jsonir, null, ' '
+    WRITE_FILE "#{output}/#{name}.ir.yaml", yamlir
     INFO "done."
