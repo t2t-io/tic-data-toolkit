@@ -27,6 +27,8 @@ HIGHLIGHT_JAVASCRIPT = (javascript) ->
 
 
 TRAVERSE_TREE = (name, classes) ->
+  # aa = [ [c.displayName, c.superclass?] for k, c of classes ]
+  # INFO "TRAVERSE_TREE: #{name} => #{JSON.stringify aa, null, ' '}"
   xs = [ n for n, c of classes when c.superclass.displayName is name ]
   # INFO "#{name}/xs => #{JSON.stringify xs}"
   ys = [ (TRAVERSE_TREE x, classes) for x in xs ]
@@ -209,6 +211,8 @@ class SchemaParser
     modified = GENERATE_NEW_JAVASCRIPT javascript, variable-names
     [load-err, ex] = self.load-js modified
     throw load-err if load-err?
+    self.js-source = javascript = modified
+    self.js-highlighted = highlighted = HIGHLIGHT_JAVASCRIPT javascript
     {roots, classes} = ex
     throw new Error "missing roots in module.exports" unless roots?
     throw new Error "invalid roots in module.exports" unless \object is typeof roots
@@ -216,6 +220,9 @@ class SchemaParser
     throw new Error "invalid classes in module.exports" unless \object is typeof classes
     for name, root of roots
       throw new Error "the root class #{name} is not derived from #{BASE_CLASSNAME}" unless root.superclass.displayName is BASE_CLASSNAME
+    xs = [ name for name, c of classes when \function isnt typeof c ]
+    INFO "these variables shall be ignored: #{xs.join ', '}"
+    classes = {[name, c] for name, c of classes when \function is typeof c}
     xs = [ (TRAVERSE_TREE name, classes) for name, root of roots ]
     self.dbg "results.a => #{JSON.stringify xs}"
     xs = lodash.flattenDeep xs
@@ -230,8 +237,6 @@ class SchemaParser
     self.p-type-map-by-classname = {[t.classname, t] for t in types}
     [ t.load! for t in types ]
     [ t.dbg-hierachy! for t in types ]
-    self.js-source = javascript = modified
-    self.js-highlighted = highlighted = HIGHLIGHT_JAVASCRIPT javascript
     peripheral_types = [ p.to-json! for p in types ]
     self.jsonir = jsonir = {peripheral_types}
     self.yamlir = yamlir = js-yaml.safeDump jsonir, {skipInvalid: yes}

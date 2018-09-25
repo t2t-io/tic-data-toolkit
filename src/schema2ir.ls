@@ -49,7 +49,11 @@ module.exports = exports =
     try
       {javascript, highlighted, jsonir, yamlir} = parser.parse text
     catch error
-      return ERR error, "failed to parse #{file}"
+      {js-highlighted, js-source} = parser
+      ERR error, "failed to parse #{file}"
+      WRITE_FILE "#{output}/#{name}.js", js-source
+      WRITE_FILE "#{output}/#{name}.js.colored", js-highlighted
+      return
     WRITE_FILE "#{output}/#{name}.js", javascript
     WRITE_FILE "#{output}/#{name}.js.colored", highlighted
     WRITE_FILE "#{output}/#{name}.ir.json", JSON.stringify jsonir, null, ' '
