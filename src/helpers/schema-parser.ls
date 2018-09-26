@@ -238,8 +238,9 @@ class SchemaParser
     [ t.load! for t in types ]
     [ t.dbg-hierachy! for t in types ]
     peripheral_types = [ p.to-json! for p in types ]
-    self.jsonir = jsonir = {peripheral_types}
-    self.yamlir = yamlir = js-yaml.safeDump jsonir, {skipInvalid: yes}
+    manifest = format: 1, created_at: (new Date!)
+    self.jsonir = jsonir = {manifest, peripheral_types}
+    self.yamlir = yamlir = js-yaml.safeDump jsonir, {skipInvalid: yes, noRefs: yes}
     return {javascript, highlighted, jsonir, yamlir}
 
   get-ptc-by-name: (name) ->
