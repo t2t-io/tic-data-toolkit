@@ -9,6 +9,7 @@ argv =
     .command require \../src/schema2js
     .command require \../src/schema2ir
     .command require \../src/ir2csv
+    .command require \../src/ir2spec
     .demand 1
     .strict!
     .help!
