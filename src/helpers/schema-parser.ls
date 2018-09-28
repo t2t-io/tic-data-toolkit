@@ -93,8 +93,8 @@ class FieldTypeClass
     self.annotations = xs
 
   to-json: ->
-    {name, writeable, value, annotations} = self = @
-    return {name, writeable, value, annotations}
+    {name, writeable, value, unit, annotations} = self = @
+    return {name, writeable, value, unit, annotations}
 
 
 

@@ -8,6 +8,7 @@ argv =
     .alias \h, \help
     .command require \../src/schema2js
     .command require \../src/schema2ir
+    .command require \../src/ir2csv
     .demand 1
     .strict!
     .help!
