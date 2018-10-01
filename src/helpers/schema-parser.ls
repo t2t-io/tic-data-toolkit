@@ -90,6 +90,9 @@ class FieldTypeClass
     delete xs['description']
     names = [ k for k, v of xs when not k.startsWith "$" ]
     throw new Error "#{prefix} has annotations that are not started with '$': #{names.join ','}" if names.length > 0
+    names = [ k for k, v of xs ]
+    names.sort!
+    xs = {[(n.substring 1), xs[n]] for n in names} # removing `$` prefix of annotation declaration.
     self.annotations = xs
 
   to-json: ->

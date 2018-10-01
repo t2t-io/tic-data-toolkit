@@ -168,12 +168,6 @@ class Loader
             xs = [ k for k, v of annotations ]
             continue unless xs.length > 0
             self.append-output "annotations: '#{JSON.stringify annotations}'", 3
-            /*
-            xs.sort!
-            self.append-output "annotations:", 3
-            for x in xs
-              self.append-output "#{x}: '#{JSON.stringify annotations[x]}\'", 4
-            */
       self.spec-actuator-output-flag = no
       for s in sensor-types
         {s_id_list} = s
@@ -201,12 +195,6 @@ class Loader
             continue unless xs.length > 0
             xs.sort!
             self.append-output "annotations: '#{JSON.stringify annotations}'", 3
-            /*
-            self.append-output "annotations:", 3
-            for x in xs
-              self.append-output "#{x}: #{annotations[x]}", 4
-            */
     return self.output.join '\n'
-
 
 module.exports = exports = {Loader}
