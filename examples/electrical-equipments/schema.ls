@@ -1,3 +1,5 @@
+#!/usr/bin/env lsc
+#
 /** Please Don't Modify These Lines Below   */
 /** --------------------------------------- */
 class SchemaBaseClass
