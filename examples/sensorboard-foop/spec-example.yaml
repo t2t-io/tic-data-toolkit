@@ -1,109 +1,111 @@
 manifest:
   format_version: 2
+  version: 0.1.0
   created_at: 2018-10-01T16:03:42.530Z
 
 
 peripheral_types:
-  sensorboard:
+  - p_type: sensorboard
     parent: null
-    sensors:
-      - path: humidity/inside/temperature
-        unit: degree_c
-        validation: [float, [-40.0, 80.0]]
-        # {"prefix":{"temperature":"TI","humidity":"HI"},"model":"st221"} #
-        annotations: eyJwcmVmaXgiOnsidGVtcGVyYXR1cmUiOiJUSSIsImh1bWlkaXR5IjoiSEkifSwibW9kZWwiOiJzdDIyMSJ9
+    metadata:
+      sensors:
+        - path: humidity/inside/temperature
+          unit: degree_c
+          validation: [float, [-40.0, 80.0]]
+          # {"prefix":{"temperature":"TI","humidity":"HI"},"model":"st221"} #
+          annotations: eyJwcmVmaXgiOnsidGVtcGVyYXR1cmUiOiJUSSIsImh1bWlkaXR5IjoiSEkifSwibW9kZWwiOiJzdDIyMSJ9
 
-      - path: humidity/inside/humidity
-        unit: '%rH'
-        validation: [float, [-40.0, 80.0]]
-        # {"prefix":{"temperature":"TI","humidity":"HI"},"model":"st221"} #
-        annotations: eyJwcmVmaXgiOnsidGVtcGVyYXR1cmUiOiJUSSIsImh1bWlkaXR5IjoiSEkifSwibW9kZWwiOiJzdDIyMSJ9
+        - path: humidity/inside/humidity
+          unit: '%rH'
+          validation: [float, [-40.0, 80.0]]
+          # {"prefix":{"temperature":"TI","humidity":"HI"},"model":"st221"} #
+          annotations: eyJwcmVmaXgiOnsidGVtcGVyYXR1cmUiOiJUSSIsImh1bWlkaXR5IjoiSEkifSwibW9kZWwiOiJzdDIyMSJ9
 
-      - path: humidity/outside/temperature
-        unit: degree_c
-        validation: [float, [-40.0, 80.0]]
-        # {"prefix":{"temperature":"TE","humidity":"HE"},"model":"st221"} #
-        annotations: eyJwcmVmaXgiOnsidGVtcGVyYXR1cmUiOiJURSIsImh1bWlkaXR5IjoiSEUifSwibW9kZWwiOiJzdDIyMSJ9
+        - path: humidity/outside/temperature
+          unit: degree_c
+          validation: [float, [-40.0, 80.0]]
+          # {"prefix":{"temperature":"TE","humidity":"HE"},"model":"st221"} #
+          annotations: eyJwcmVmaXgiOnsidGVtcGVyYXR1cmUiOiJURSIsImh1bWlkaXR5IjoiSEUifSwibW9kZWwiOiJzdDIyMSJ9
 
-      - path: humidity/outside/humidity
-        unit: '%rH'
-        validation: [float, [-40.0, 80.0]]
-        # {"prefix":{"temperature":"TE","humidity":"HE"},"model":"st221"} #
-        annotations: eyJwcmVmaXgiOnsidGVtcGVyYXR1cmUiOiJURSIsImh1bWlkaXR5IjoiSEUifSwibW9kZWwiOiJzdDIyMSJ9
+        - path: humidity/outside/humidity
+          unit: '%rH'
+          validation: [float, [-40.0, 80.0]]
+          # {"prefix":{"temperature":"TE","humidity":"HE"},"model":"st221"} #
+          annotations: eyJwcmVmaXgiOnsidGVtcGVyYXR1cmUiOiJURSIsImh1bWlkaXR5IjoiSEUifSwibW9kZWwiOiJzdDIyMSJ9
 
-      - path: waterlevel/1st/value
-        validation: [boolean, [no, yes]]
-        # {"prefix":{"value":"W"}} #
-        annotations: eyJwcmVmaXgiOnsidmFsdWUiOiJXIn19
+        - path: waterlevel/1st/value
+          validation: [boolean, [no, yes]]
+          # {"prefix":{"value":"W"}} #
+          annotations: eyJwcmVmaXgiOnsidmFsdWUiOiJXIn19
 
-      - path: waterlevel/2nd/value
-        validation: [boolean, [no, yes]]
-        # {"prefix":{"value":"W1"}} #
-        annotations: eyJwcmVmaXgiOnsidmFsdWUiOiJXMSJ9fQ==
+        - path: waterlevel/2nd/value
+          validation: [boolean, [no, yes]]
+          # {"prefix":{"value":"W1"}} #
+          annotations: eyJwcmVmaXgiOnsidmFsdWUiOiJXMSJ9fQ==
 
-      - path: ndir_co2/0/co2
-        unit: ppm
-        validation: [int, [400, 10000]]
-        # {"prefix":{"co2":"C"},"model":"ds-t-110"} #
-        annotations: eyJwcmVmaXgiOnsiY28yIjoiQyJ9LCJtb2RlbCI6ImRzLXQtMTEwIn0=
+        - path: ndir_co2/0/co2
+          unit: ppm
+          validation: [int, [400, 10000]]
+          # {"prefix":{"co2":"C"},"model":"ds-t-110"} #
+          annotations: eyJwcmVmaXgiOnsiY28yIjoiQyJ9LCJtb2RlbCI6ImRzLXQtMTEwIn0=
 
-      - path: ndir_co2/0/co2
-        unit: ppm
-        validation: [int, [400, 10000]]
-        # {"prefix":{"co2":"C"},"model":"ds-t-110"} #
-        annotations: eyJwcmVmaXgiOnsiY28yIjoiQyJ9LCJtb2RlbCI6ImRzLXQtMTEwIn0=
+        - path: ndir_co2/0/co2
+          unit: ppm
+          validation: [int, [400, 10000]]
+          # {"prefix":{"co2":"C"},"model":"ds-t-110"} #
+          annotations: eyJwcmVmaXgiOnsiY28yIjoiQyJ9LCJtb2RlbCI6ImRzLXQtMTEwIn0=
 
-      - path: fan/left/pwm
-        validation: [int, [1, 2395]]
-        writeable: yes
-        # {"prefix":{"pwm":"FSA"},"model":"abc-001"} #
-        annotations: eyJwcmVmaXgiOnsicHdtIjoiRlNBIn0sIm1vZGVsIjoiYWJjLTAwMSJ9
+        - path: fan/left/pwm
+          validation: [int, [1, 2395]]
+          writeable: yes
+          # {"prefix":{"pwm":"FSA"},"model":"abc-001"} #
+          annotations: eyJwcmVmaXgiOnsicHdtIjoiRlNBIn0sIm1vZGVsIjoiYWJjLTAwMSJ9
 
-      - path: fan/left/percentage
-        validation: [int, [1, 100]]
-        writeable: yes                # it indicates the actuator action `fan/left/set_percentage` is supported
-        # {"prefix":{"pwm":"FSA"},"model":"abc-001"} #
-        annotations: eyJwcmVmaXgiOnsicHdtIjoiRlNBIn0sIm1vZGVsIjoiYWJjLTAwMSJ9
+        - path: fan/left/percentage
+          validation: [int, [1, 100]]
+          writeable: yes                # it indicates the actuator action `fan/left/set_percentage` is supported
+          # {"prefix":{"pwm":"FSA"},"model":"abc-001"} #
+          annotations: eyJwcmVmaXgiOnsicHdtIjoiRlNBIn0sIm1vZGVsIjoiYWJjLTAwMSJ9
 
-      - path: fan/right/pwm
-        validation: [int, [1, 2395]]
-        writeable: yes                # it indicates the actuator action `fan/right/set_pwm` is supported
-        # {"prefix":{"pwm":"FSB"},"model":"abc-001"} #
-        annotations: eyJwcmVmaXgiOnsicHdtIjoiRlNCIn0sIm1vZGVsIjoiYWJjLTAwMSJ9
+        - path: fan/right/pwm
+          validation: [int, [1, 2395]]
+          writeable: yes                # it indicates the actuator action `fan/right/set_pwm` is supported
+          # {"prefix":{"pwm":"FSB"},"model":"abc-001"} #
+          annotations: eyJwcmVmaXgiOnsicHdtIjoiRlNCIn0sIm1vZGVsIjoiYWJjLTAwMSJ9
 
-      - path: emoji/0/value
-        validation: [int, [0, 600], 1]
-        writeable: yes                # it indicates the actuator action `emoji/0/set_value` is supported
-        # {"prefix":{"value":"LM"},"model":"www-123"} #
-        annotations: eyJwcmVmaXgiOnsidmFsdWUiOiJMTSJ9LCJtb2RlbCI6Ind3dy0xMjMifQ==
+        - path: emoji/0/value
+          validation: [int, [0, 600], 1]
+          writeable: yes                # it indicates the actuator action `emoji/0/set_value` is supported
+          # {"prefix":{"value":"LM"},"model":"www-123"} #
+          annotations: eyJwcmVmaXgiOnsidmFsdWUiOiJMTSJ9LCJtb2RlbCI6Ind3dy0xMjMifQ==
 
-      - path: emoji/0/mode
-        validation: [enum, [ascii pre_installed_image post_installed_image number pre_installed_animation post_installed_animation]]
-        # {"prefix":{"value":"LM"},"model":"www-123"} #
-        annotations: eyJwcmVmaXgiOnsidmFsdWUiOiJMTSJ9LCJtb2RlbCI6Ind3dy0xMjMifQ==
+        - path: emoji/0/mode
+          validation: [enum, [ascii pre_installed_image post_installed_image number pre_installed_animation post_installed_animation]]
+          # {"prefix":{"value":"LM"},"model":"www-123"} #
+          annotations: eyJwcmVmaXgiOnsidmFsdWUiOiJMTSJ9LCJtb2RlbCI6Ind3dy0xMjMifQ==
 
-      - path: emoji/0/index
-        validation: [int, [0, 128], 1]
-        # {"prefix":{"value":"LM"},"model":"www-123"} #
-        annotations: eyJwcmVmaXgiOnsidmFsdWUiOiJMTSJ9LCJtb2RlbCI6Ind3dy0xMjMifQ==
+        - path: emoji/0/index
+          validation: [int, [0, 128], 1]
+          # {"prefix":{"value":"LM"},"model":"www-123"} #
+          annotations: eyJwcmVmaXgiOnsidmFsdWUiOiJMTSJ9LCJtb2RlbCI6Ind3dy0xMjMifQ==
 
-      # ...
+        # ...
 
-    actuators:
-      - path: emoji/0/show_number
-        validation: [int, [0, 99], 1]
-        # {"prefix":"LMN"} #
-        annotations: eyJwcmVmaXgiOiJMTU4ifQ==
+      actuators:
+        - path: emoji/0/show_number
+          validation: [int, [0, 99], 1]
+          # {"prefix":"LMN"} #
+          annotations: eyJwcmVmaXgiOiJMTU4ifQ==
 
-      - path: emoji/0/show_ascii
-        validation: [int, [0, 127], 1]
-        # {"prefix":"LMA"} #
-        annotations: eyJwcmVmaXgiOiJMTUEifQ==
+        - path: emoji/0/show_ascii
+          validation: [int, [0, 127], 1]
+          # {"prefix":"LMA"} #
+          annotations: eyJwcmVmaXgiOiJMTUEifQ==
 
-      - path: emoji/0/show_animation
-        validation: [int, [0, 38], 1]
-        # {"prefix":"LMF"} #
-        annotations: eyJwcmVmaXgiOiJMTUYifQ==
+        - path: emoji/0/show_animation
+          validation: [int, [0, 38], 1]
+          # {"prefix":"LMF"} #
+          annotations: eyJwcmVmaXgiOiJMTUYifQ==
 
 
 
