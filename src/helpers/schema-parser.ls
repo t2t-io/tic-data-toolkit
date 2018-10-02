@@ -14,7 +14,7 @@ GENERATE_NEW_JAVASCRIPT = (javascript, class-names) ->
   (function(){
   #{xs.join '\n'}
     var classes = {#{ys.join ', '}};
-    module.exports = {roots: roots, classes: classes};
+    module.exports = {roots: roots, classes: classes, manifest: MANIFEST};
   }).call(this);
   """
 
@@ -39,6 +39,69 @@ TRAVERSE_TREE = (name, classes) ->
 class SchemaBaseClass
   ->
     @sensors = {}
+    @actuators = {}
+
+  declare-sensors: (types-and-identities) ->
+    {sensors} = self = @
+    for st, identities of types-and-identities
+      self.sensors[st] = {}
+      for id in identities
+        self.sensors[st][id] = {}
+
+
+class ActionTypeClass
+  (@parser, @stc, @definition, @index) ->
+    return
+
+  load: ->
+    {parser, stc, definition, index} = self = @
+    {ptc} = stc
+    prefix = "#{ptc.name.cyan}/_/#{stc.name.green}"
+    throw new Error "#{prefix} has no action definition" unless definition?
+    {action, argument, unit, description} = definition
+    throw new Error "#{prefix} has no action name" unless action?
+    self.name = name = action
+    prefix = "#{prefix}/A[#{name.yellow}]"
+    unit = '' unless unit? and \string is typeof unit
+    description = '' unless description? and \string is typeof description
+    throw new Error "#{prefix} has no action argument definition" unless argument?
+    throw new Error "#{prefix} has action argument definition but not array" unless Array.isArray argument
+    throw new Error "#{prefix} has action argument definition but no elements" if argument.length is 0
+    [type, range, incremental] = argument
+    throw new Error "#{prefix} has action argument definition but no type as 1st element" unless type? and \string is typeof type
+    throw new Error "#{prefix} has action argument definition but unsupported type: #{type}" unless type in <[boolean enum float int]>
+    throw new Error "#{prefix} has action argument definition but no range as 2nd element" unless range? and Array.isArray range
+    if type is \boolean
+      throw new Error "#{prefix} has action argument as boolean, but the number of elements in range is not 2 => #{range.length}" unless range.length is 2
+      [false_alias, true_alias] = range
+      throw new Error "#{prefix} has action argument as boolean, but alias for _false_ is not string: #{false_alias}(#{typeof false_alias})" unless \string is typeof false_alias
+      throw new Error "#{prefix} has action argument as boolean, but alias for _true_ is not string: #{true_alias}(#{typeof true_alias})" unless \string is typeof true_alias
+    else if type is \enum
+      throw new Error "#{prefix} has action argument as enum, but no elements of range array" if range.length is 0
+    else if type in <[float int]>
+      throw new Error "#{prefix} has action argument as float, but the number of elements in range is not 2 => #{range.length}" unless range.length is 2
+      [lower, upper] = range
+      throw new Error "#{prefix} has action argument as float, but lower bound is not number: #{lower}(#{typeof lower})" unless \number is typeof lower
+      throw new Error "#{prefix} has action argument as float, but upper bound is not number: #{upper}(#{typeof upper})" unless \number is typeof upper
+      throw new Error "#{prefix} has action argument as float, but upper (#{upper}) is smaller than lower (#{lower})" if upper < lower
+    self.unit = unit
+    self.argument = {type, range, incremental}
+    self.description = description
+    xs = lodash.merge {}, definition
+    delete xs['action']
+    delete xs['argument']
+    delete xs['unit']
+    delete xs['description']
+    names = [ k for k, v of xs when not k.startsWith "$" ]
+    throw new Error "#{prefix} has annotations that are not started with '$': #{names.join ','}" if names.length > 0
+    names = [ k for k, v of xs ]
+    names.sort!
+    xs = {[(n.substring 1), xs[n]] for n in names} # removing `$` prefix of annotation declaration.
+    self.annotations = xs
+
+  to-json: ->
+    {name, argument, unit, annotations} = self = @
+    return {name, argument, unit, annotations}
 
 
 class FieldTypeClass
@@ -100,33 +163,51 @@ class FieldTypeClass
     return {name, writeable, value, unit, annotations}
 
 
-
-class SensorTypeClass
-  (@parser, @ptc, @name, @identities, @fields) ->
-    # console.log "#{ptc.name}/????/#{name}/[#{identities.join ','}] => #{JSON.stringify fields}"
+class SensorInstanceClass
+  (@parser, @stc, @s_id, @annotations) ->
     return
 
   load: ->
-    {parser, ptc, name, identities, fields} = self = @
-    prefix = "#{ptc.name.cyan}/_/#{name.green}"
-    # console.log "#{prefix}: (SensorTypeClass) loading ..."
-    throw new Error "#{prefix} has no s_id list" unless identities?
-    throw new Error "#{prefix} has s_id but not array" unless Array.isArray identities
-    throw new Error "#{prefix} has s_id list but no elements" if identities.length is 0
-    throw new Error "#{prefix} has s_id list has no string element" unless \string is typeof identities[0]
-    throw new Error "#{prefix} has no fields" unless fields?
-    throw new Error "#{prefix} has field list but not array" unless Array.isArray fields
-    throw new Error "#{prefix} has field list but no elements" if fields.length is 0
-    self.ftc-list = xs = [ (new FieldTypeClass parser, self, f, i) for let f, i in fields ]
-    [ x.load! for x in xs ]
     return
 
   to-json: ->
-    {name, identities, ftc-list} = self = @
+    {s_id, annotations} = self = @
+    return {s_id, annotations}
+
+
+class SensorTypeClass
+  (@parser, @ptc, @name, @instances, @fields, @actions) ->
+    xs = [ k for k, v of instances ]
+    @actions = [] unless @actions?
+    INFO "#{ptc.name}/_/#{name}/[#{xs.join ','}] => fields: #{JSON.stringify fields}"
+    INFO "#{ptc.name}/_/#{name}/[#{xs.join ','}] => actions: #{JSON.stringify @actions}" if @actions.length > 0
+    return
+
+  load: ->
+    {parser, ptc, name, instances, fields, actions} = self = @
+    prefix = "#{ptc.name.cyan}/_/#{name.green}"
+    # console.log "#{prefix}: (SensorTypeClass) loading ..."
+    throw new Error "#{prefix} has no s_id object list" unless instances?
+    s_id_list = [ s_id for s_id, annotations of instances ]
+    throw new Error "#{prefix} has s_id list but no elements" if s_id_list.length is 0
+    throw new Error "#{prefix} has no fields" unless fields?
+    throw new Error "#{prefix} has field list but not array" unless Array.isArray fields
+    throw new Error "#{prefix} has field list but no elements" if fields.length is 0
+    self.sic-list = xs = [ (new SensorInstanceClass parser, self, s_id, annotations) for s_id, annotations of instances ]
+    self.ftc-list = ys = [ (new FieldTypeClass parser, self, f, i) for let f, i in fields ]
+    self.atc-list = zs = [ (new ActionTypeClass parser, self, a, i) for let a, i in actions ]
+    [ x.load! for x in xs ]
+    [ y.load! for y in ys ]
+    [ z.load! for z in zs ]
+    return
+
+  to-json: ->
+    {name, sic-list, ftc-list, atc-list} = self = @
     fields = [ f.to-json! for f in ftc-list ]
+    actions = [ a.to-json! for a in atc-list ]
+    instances = [ s.to-json! for s in sic-list ]
     s_type = name
-    s_id_list = identities
-    return {s_type, s_id_list, fields}
+    return {s_type, instances, fields, actions}
 
 
 class PeripheralTypeClass
@@ -157,10 +238,10 @@ class PeripheralTypeClass
     self.ptc-parent = ptc-parent = if classname is BASE_CLASSNAME then null else parser.get-ptc-by-classname clazz.superclass.displayName
     self.ptc-parent.add-child self if ptc-parent?
     self.ptc-parent-name = ptc-parent-name = if ptc-parent? then ptc-parent.name else null
-    {sensors} = self.object = obj = new clazz!
+    {sensors, actuators} = self.object = obj = new clazz!
     # console.log "#{name.cyan}: (PeripheralTypeClass) loading ... => #{JSON.stringify sensors}"
     throw new Error "#{ptc.name.cyan} has no defined `sensors`" unless sensors? and \object is typeof sensors
-    self.stc-list = xs = [ (new SensorTypeClass parser, self, s_type, s_id_list, obj[s_type]) for s_type, s_id_list of sensors ]
+    self.stc-list = xs = [ (new SensorTypeClass parser, self, s_type, s_instances, obj[s_type], actuators[s_type]) for s_type, s_instances of sensors ]
     [ x.load! for x in xs ]
 
   to-json: ->
@@ -216,11 +297,16 @@ class SchemaParser
     throw load-err if load-err?
     self.js-source = javascript = modified
     self.js-highlighted = highlighted = HIGHLIGHT_JAVASCRIPT javascript
-    {roots, classes} = ex
+    {roots, classes, manifest} = ex
     throw new Error "missing roots in module.exports" unless roots?
     throw new Error "invalid roots in module.exports" unless \object is typeof roots
     throw new Error "missing classes in module.exports" unless classes?
     throw new Error "invalid classes in module.exports" unless \object is typeof classes
+    throw new Error "missing manifest in module.exports" unless manifest?
+    throw new Error "invalid manifest in module.exports" unless \object is typeof manifest
+    {name, version} = manifest
+    throw new Error "missing _name_ in manifest" unless name?
+    throw new Error "missing _version_ in manifest" unless version?
     for name, root of roots
       throw new Error "the root class #{name} is not derived from #{BASE_CLASSNAME}" unless root.superclass.displayName is BASE_CLASSNAME
     xs = [ name for name, c of classes when \function isnt typeof c ]
@@ -241,7 +327,7 @@ class SchemaParser
     [ t.load! for t in types ]
     [ t.dbg-hierachy! for t in types ]
     peripheral_types = [ p.to-json! for p in types ]
-    manifest = format: 1, created_at: (new Date!)
+    manifest = lodash.merge {format: 2, created_at: (new Date!)}, manifest
     self.jsonir = jsonir = {manifest, peripheral_types}
     self.yamlir = yamlir = js-yaml.safeDump jsonir, {skipInvalid: yes, noRefs: yes}
     return {javascript, highlighted, jsonir, yamlir}
@@ -251,5 +337,6 @@ class SchemaParser
 
   get-ptc-by-classname: (classname) ->
     return @p-type-map-by-classname[classname]
+
 
 module.exports = exports = {SchemaParser}

@@ -14,6 +14,10 @@ PRINT_HELP_MESSAGE = (csv, db) ->
 
     rm -f #{db} && \\
       echo -e ".mode csv\\n.import #{csv} DataSchema\\n.mode col\\nSELECT * FROM DataSchema;" | sqlite3 #{db}
+
+  Or, using csvlook utility to transform the CSV data to markdown table:
+
+    cat #{csv} | csvlook
   """
 
 

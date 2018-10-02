@@ -20,7 +20,9 @@ class FieldTypeClass
     self.value-unit = unit
     self.description = description
     self.annotations = annotations
-    INFO "loading #{peripheral-type.name.cyan}/#{sensor-type.name.green}/#{name.yellow} => #{type}, [#{range.join ', '}], unit:#{unit}, #{if writeable then 'writable'}" if verbose
+    u = if unit? and unit.length > 0 then "unit:#{unit.gray}, " else ""
+    w = if writeable then "writeable".blue else ""
+    INFO "loading #{peripheral-type.name.cyan}/#{sensor-type.name.green}/#{'*'.magenta}/#{name.yellow} => #{type}, [#{range.join ', '}], #{u}#{w}" if verbose
 
   init: ->
     return
@@ -31,21 +33,39 @@ class FieldTypeClass
   get-unit: ->
     return if @unit? then @unit else "''"
 
+  get-annotations: (sensor-instance=null) ->
+    return lodash.merge {}, @annotations unless sensor-instance?
+    return lodash.merge {}, @annotations, sensor-instance.annotations
+
+
+class SensorInstanceClass
+  (@spec, @sensor-type, @verbose) ->
+    {s_id, annotations} = spec
+    {peripheral-type} = sensor-type
+    @id = @s_id = id = s_id
+    @annotations = annotations
+    @annotations = {} unless @annotations?
+    INFO "loading #{peripheral-type.name.cyan}/#{sensor-type.name.green}/#{id.magenta} => #{JSON.stringify annotations}" if verbose
+
+  init: ->
+    return
 
 
 class SensorTypeClass
   (@spec, @peripheral-type, @verbose) ->
-    {s_type, s_id_list, fields} = spec
+    {s_type, instances, fields} = spec
     self = @
     self.name = name = s_type
-    self.s_id_list = s_id_list
-    xs = [ s.red for s in s_id_list ]
+    self.instances = instances
+    xs = [ x.s_id.red for x in instances ]
     INFO "loading #{peripheral-type.name.cyan}/#{name.green} => #{xs.join ', '}" if verbose
+    self.sensor-instances = [ (new SensorInstanceClass i, self, verbose) for i in instances ]
     self.field-types = [ (new FieldTypeClass f, self, verbose) for f in fields ]
 
   init: ->
-    {name, peripheral-type, field-types, verbose} = self = @
+    {name, peripheral-type, sensor-instances, field-types, verbose} = self = @
     INFO "init #{peripheral-type.name}/#{name}" if verbose
+    [ s.init! for s in sensor-instances ]
     [ f.init! for f in field-types ]
 
 
@@ -120,12 +140,12 @@ class Loader
     self.output = []
     for p in p-types-ordered
       {sensor-types} = p
-      for s in sensor-types
-        {s_id_list} = s
-        for i in s_id_list
-          {field-types} = s
-          for f in field-types
-            xs = [p.name, s.name, i, f.name, f.writeable, f.value-type, f.value-unit]
+      for st in sensor-types
+        {sensor-instances} = st
+        for si in sensor-instances
+          {field-types} = st
+          for ft in field-types
+            xs = [p.name, st.name, si.id, ft.name, ft.writeable, ft.value-type, ft.value-unit]
             self.output.push xs
     xs = self.output
     xs = [ x.join ',' for x in xs ]
