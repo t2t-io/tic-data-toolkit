@@ -20,35 +20,34 @@ SchemaBaseClass = SCHEMA_BASE_CLASS if SCHEMA_BASE_CLASS?
 
 class Sensorboard extends SchemaBaseClass
   humidity:
-    * field: \temperature , unit: \degree , value: [\float, [-40.0, 80.0]]  , $prefix: <[TE TI]>
-    * field: \humidity    , unit: \%rH    , value: [\int, [0, 100]]         , $prefix: <[HE HI]>
+    * field: \temperature , unit: \degree , value: [\float, [-40.0, 80.0]]
+    * field: \humidity    , unit: \%rH    , value: [\int, [0, 100]]
 
   waterlevel:
-    * field: \value       , unit: ''      , value: [\boolean, <[no, yes]>]  , $prefix: <[W W1]>
+    * field: \value       , unit: ''      , value: [\boolean, <[no, yes]>]
       ...
 
   ndir_co2:
-    * field: \co2         , unit: \ppm    , value: [\int, [400, 10000]]     , $prefix: \C   , $keep_error: yes
+    * field: \co2         , unit: \ppm    , value: [\int, [400, 10000]]     , $keep_error: yes # (annotation for any instance of same sensor type)
       ...
 
   ambient_light:
-    * field: \illuminance , unit: \lux    , value: [\int, [0, 64000]]       , $prefix: \L
+    * field: \illuminance , unit: \lux    , value: [\int, [0, 64000]]       , $keep_error: no
 
   fan:
-    * field: \pwm         , unit: ''      , value: [\int, [1, 2395]]        , writeable: yes, $prefix: <[FSA FSB]>
-    * field: \percentage  , unit: '%'     , value: [\int, [0, 100]]         , writeable: yes, $prefix: null
+    * field: \pwm         , unit: ''      , value: [\int, [1, 2395]]        , writeable: yes, $keep_error: yes
+    * field: \percentage  , unit: '%'     , value: [\int, [0, 100]]         , writeable: yes
 
   led:
-    * field: \pwm         , unit: ''      , value: [\int, [1, 2395]]        , writeable: yes, $prefix: \LD
-    * field: \percentage  , unit: '%'     , value: [\int, [0, 100]]         , writeable: yes, $prefix: null
+    * field: \pwm         , unit: ''      , value: [\int, [1, 2395]]        , writeable: yes, $keep_error: yes
+    * field: \percentage  , unit: '%'     , value: [\int, [0, 100]]         , writeable: yes
 
   pump:
-    * field: \vibration   , unit: ''      , value: [\boolean, <[no, yes]>]  , writeable: yes, $prefix: \PO
+    * field: \vibration   , unit: ''      , value: [\boolean, <[no, yes]>]  , writeable: yes
 
   emoji:
-    * field: \value       , $prefix: \LM , value: [\int, [0, 600]]
-    * field: \mode        , $prefix: null
-      value: [\enum, <[ascii pre_installed_image post_installed_image number pre_installed_animation post_installed_animation]>]
+    * field: \value       , value: [\int, [0, 600], 1]                      , writeable: yes
+    * field: \mode        , value: [\enum, <[ascii pre_installed_image post_installed_image number pre_installed_animation post_installed_animation]>]
     * field: \index       , $prefix: null, value: [\int, [0, 128]]
 
   # Legacy emoji display (old firmware)
@@ -63,7 +62,7 @@ class Sensorboard extends SchemaBaseClass
     #
     @.declare-sensors do
       humidity            : <[inside outside]>
-      waterlevel          : <[1st 2nd]>
+      waterlevel          : <[top1 top2]>
       ndir_co2            : <[0]>
       ambient_light       : <[0]>
       fan                 : <[left right]>
@@ -72,23 +71,33 @@ class Sensorboard extends SchemaBaseClass
       emoji               : <[0]>
 
     ##
-    # (Optional) Specify extra information of each sensor.
+    # (Optional)
+    # Specify extra information as annotations of each sensor instance, with
+    # the specific `s_id`.
     #
-    @sensors[\humidity].0             = model: \sht-31
-    @sensors[\humidity].1             = model: \sht-31
-    @sensors[\ndir_co2].0             = model: \ds-t-110
-    @sensors[\ambient_light].0        = model: \ltr-303als-01
+    @sensors[\humidity].inside        = prefix: {temperature: \TI, humidity: \HI} , model: \st221
+    @sensors[\humidity].outside       = prefix: {temperature: \TE, humidity: \HE} , model: \st221
+    @sensors[\waterlevel].top1        = prefix: {value: \W                      }
+    @sensors[\waterlevel].top2        = prefix: {value: \W1                     }
+    @sensors[\ndir_co2].0             = prefix: {co2: \C                        }, model: \ds-t-110
+    @sensors[\ambient_light].0        = prefix: {illuminance: \L                }, model: \ltr-303als-01
+    @sensors[\fan].left               = prefix: {pwm: \FSA                      }, model: \abc-001
+    @sensors[\fan].right              = prefix: {pwm: \FSB                      }, model: \abc-001
+    @sensors[\led].0                  = prefix: {pwm: \LD                       }, model: \def-002
+    @sensors[\pump].0                 = prefix: {vibration: \PO                 }, model: \xyz-999
+    @sensors[\emoji].0                = prefix: {value: \LM                     }, model: \www-123
 
     ##
-    # (Optional) specify extra actuator actions (in addition to set_xxx) of those writeable sensors.
+    # (Optional)
+    # Specify extra actuator actions (in addition to set_xxx) of those writeable sensors.
     #
     # Please note, these extra actuator actions are supplemental information to the defined sensor types.
     # So, all sensor instances of same sensor-type shall share these extra actuator actions if specified.
     #
     @actuators[\emoji] =
-      * action: \show_number    , value: [\int, [0, 99]]  , $prefix: \LMN
-      * action: \show_ascii     , value: [\int, [0, 127]] , $prefix: \LMA
-      * action: \show_animation , value: [\int, [0, 38]]  , $prefix: \LMF
+      * action: \show_number    , value: [\int, [0, 99], 1]  , $prefix: \LMN
+      * action: \show_ascii     , value: [\int, [0, 127], 1] , $prefix: \LMA
+      * action: \show_animation , value: [\int, [0, 38], 1]  , $prefix: \LMF
 
 
 
