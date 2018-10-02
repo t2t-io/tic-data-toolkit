@@ -5,6 +5,35 @@ const ROOT = \__ROOT__
 const SchemaBaseClassName = \schema_base_class
 
 
+class ActionTypeClass
+  (@spec, @sensor-type, @verbose) ->
+    {name, argument, unit, description, annotations} = spec
+    {type, range, incremental} = argument
+    {peripheral-type} = sensor-type
+    self = @
+    self.name = name
+    self.argument-type = type
+    self.argument-range = range
+    self.argument-incremental = incremental
+    self.argument-unit = unit
+    self.description = description
+    self.annotations = annotations
+    u = if unit? and unit.length > 0 then "unit:#{unit.gray}, " else ""
+    INFO "loading #{peripheral-type.name.cyan}/#{sensor-type.name.green}/#{'*'.magenta}/#{name.yellow} => #{type}, [#{range.join ', '}], #{u}" if verbose
+
+  init: ->
+    return
+
+  get-description: ->
+    return if @description? then @description else "''"
+
+  get-unit: ->
+    return if @unit? then @unit else "''"
+
+  get-annotations: (sensor-instance=null) ->
+    return lodash.merge {}, @annotations unless sensor-instance?
+    return lodash.merge {}, @annotations, sensor-instance.annotations
+
 
 class FieldTypeClass
   (@spec, @sensor-type, @verbose) ->
@@ -53,7 +82,7 @@ class SensorInstanceClass
 
 class SensorTypeClass
   (@spec, @peripheral-type, @verbose) ->
-    {s_type, instances, fields} = spec
+    {s_type, instances, fields, actions} = spec
     self = @
     self.name = name = s_type
     self.instances = instances
@@ -61,12 +90,14 @@ class SensorTypeClass
     INFO "loading #{peripheral-type.name.cyan}/#{name.green} => #{xs.join ', '}" if verbose
     self.sensor-instances = [ (new SensorInstanceClass i, self, verbose) for i in instances ]
     self.field-types = [ (new FieldTypeClass f, self, verbose) for f in fields ]
+    self.action-types = [ (new ActionTypeClass a, self, verbose) for a in actions ]
 
   init: ->
-    {name, peripheral-type, sensor-instances, field-types, verbose} = self = @
+    {name, peripheral-type, sensor-instances, field-types, action-types, verbose} = self = @
     INFO "init #{peripheral-type.name}/#{name}" if verbose
     [ s.init! for s in sensor-instances ]
     [ f.init! for f in field-types ]
+    [ a.init! for a in action-types ]
 
 
 
@@ -110,8 +141,9 @@ class Loader
 
   load: ->
     {spec, filename, verbose} = self = @
-    {peripheral_types} = spec
+    {peripheral_types, manifest} = spec
     INFO "loader: #{filename}, #{peripheral_types.length} peripheral types."
+    self.manifest = manifest
     self.p-types = xs = [ (new PeripheralTypeClass pt, self, verbose) for pt in peripheral_types ]
     self.p-type-map = {[x.name, x] for x in xs}
     [ x.init! for x in xs ]
@@ -152,65 +184,70 @@ class Loader
     xs = ["p_type,s_type,s_id,name,writable,type,unit"] ++ xs
     return xs.join "\n"
 
-  reset-output: ->
-    @.output = []
+  reset-output: (initials=[]) ->
+    initials = [] unless initials?
+    @.output = initials
 
   append-output: (line, ident=0) ->
     @.output.push "#{'  ' * ident}#{line}"
 
   to-spec: ->
-    {p-types-ordered} = self = @
-    self.reset-output!
+    {p-types-ordered, manifest} = self = @
+    text = js-yaml.safeDump {manifest}
+    headers = text.split '\n'
+    self.reset-output headers
+    self.append-output "peripheral_types:"
     for p in p-types-ordered
       {sensor-types} = p
       continue unless sensor-types.length > 0
-      self.append-output "#{p.name}:"
-      self.append-output "manifest:", 1
-      self.append-output "parent: #{if p.parent is self.root then ROOT else p.parent.name}", 2
+      self.append-output "p_type: #{p.name}", 1
+      self.append-output "p_type_parent: #{if p.parent is self.root then ROOT else p.parent.name}", 1
       self.append-output "sensors:", 1
-      for s in sensor-types
-        {s_id_list} = s
-        for i in s_id_list
-          {field-types} = s
-          for f in field-types
-            {value-type, value-unit, description, annotations} = f
-            self.append-output "- path : #{s.name}/#{i}/#{f.name}", 2
-            self.append-output "description: #{description}", 3 if description? and \string is typeof description and '' != description
-            self.append-output "unit : #{value-unit}", 3 if value-unit? and \string is typeof value-unit and '' != value-unit
+      for st in sensor-types
+        {sensor-instances} = st
+        for si in sensor-instances
+          {field-types} = st
+          for ft in field-types
+            {value-type, value-unit, writeable, description} = ft
+            self.append-output "- path : #{st.name}/#{si.id}/#{ft.name}", 2
+            self.append-output "unit : '#{value-unit}'", 3 if value-unit? and \string is typeof value-unit and '' != value-unit
+            self.append-output "writeable : #{writeable}", 3
+            self.append-output "description: '#{description}'", 3 if description? and \string is typeof description and '' != description
             if value-type in <[enum boolean]>
-              self.append-output "value: [#{value-type}, [#{f.value-range.join ', '}]]", 3
+              self.append-output "value: [#{value-type}, [#{ft.value-range.join ', '}]]", 3
             else if value-type in <[int float]>
-              line = "value: [#{value-type}, [#{f.value-range.join ', '}]"
-              line = if f.value-incremental? then "#{line}, #{f.value-incremental}]" else "#{line}]"
+              line = "value: [#{value-type}, [#{ft.value-range.join ', '}]"
+              line = if ft.value-incremental? then "#{line}, #{ft.value-incremental}]" else "#{line}]"
               self.append-output line, 3
             else
               self.append-output "# unsupported type: #{value-type}", 3
+            annotations = ft.get-annotations si
             xs = [ k for k, v of annotations ]
             continue unless xs.length > 0
             self.append-output "annotations: '#{JSON.stringify annotations}'", 3
       self.spec-actuator-output-flag = no
-      for s in sensor-types
-        {s_id_list} = s
-        for i in s_id_list
-          {field-types} = s
-          writeable-field-types = [ f for f in field-types when f.writeable ]
-          continue unless writeable-field-types.length > 0
+      for st in sensor-types
+        {sensor-instances} = st
+        for si in sensor-instances
+          {action-types} = st
+          continue unless action-types.length > 0
           if not self.spec-actuator-output-flag
             self.spec-actuator-output-flag = yes
             self.append-output "actuators:", 1
-          for f in writeable-field-types
-            {value-type, value-unit, description, annotations} = f
-            self.append-output "- path: #{s.name}/#{i}/set_#{f.name}", 2
-            self.append-output "description: #{description}", 3 if description? and \string is typeof description and '' != description
-            self.append-output "unit: #{value-unit}", 3 if value-unit? and \string is typeof value-unit and '' != value-unit
-            if value-type in <[enum boolean]>
-              self.append-output "arg : [#{value-type}, [#{f.value-range.join ', '}]]", 3
-            else if value-type in <[int float]>
-              line = "arg : [#{value-type}, [#{f.value-range.join ', '}]"
-              line = if f.value-incremental? then "#{line}, #{f.value-incremental}]" else "#{line}]"
+          for at in action-types
+            {argument-type, argument-unit, description} = at
+            self.append-output "- path: #{st.name}/#{si.id}/#{at.name}", 2
+            self.append-output "unit: '#{argument-unit}'", 3 if argument-unit? and \string is typeof argument-unit and '' != argument-unit
+            self.append-output "description: '#{description}'", 3 if description? and \string is typeof description and '' != description
+            if argument-type in <[enum boolean]>
+              self.append-output "arg : [#{argument-type}, [#{at.argument-range.join ', '}]]", 3
+            else if argument-type in <[int float]>
+              line = "arg : [#{argument-type}, [#{at.argument-range.join ', '}]"
+              line = if at.argument-incremental? then "#{line}, #{at.argument-incremental}]" else "#{line}]"
               self.append-output line, 3
             else
-              self.append-output "# unsupported type: #{value-type}", 3
+              self.append-output "# unsupported type: #{argument-type}", 3
+            annotations = at.get-annotations si
             xs = [ k for k, v of annotations ]
             continue unless xs.length > 0
             xs.sort!

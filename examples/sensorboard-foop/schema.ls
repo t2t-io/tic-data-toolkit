@@ -17,38 +17,44 @@ SchemaBaseClass = SCHEMA_BASE_CLASS if SCHEMA_BASE_CLASS?
 /** --------------------------------------- */
 /** Please Don't Modify These Lines Above   */
 
+MANIFEST =
+  name: \cnsc-cdc
+  version: \0.1.1
+
 
 class Sensorboard extends SchemaBaseClass
   humidity:
-    * field: \temperature , unit: \degree , value: [\float, [-40.0, 80.0]]
-    * field: \humidity    , unit: \%rH    , value: [\int, [0, 100]]
+    * field: \temperature , unit: \degree_c , value: [\float, [-40.0, 80.0]]
+    * field: \humidity    , unit: \%rH      , value: [\int, [0, 100]]
 
   waterlevel:
-    * field: \value       , unit: ''      , value: [\boolean, <[no, yes]>]
+    * field: \value       , unit: ''        , value: [\boolean, <[no yes]>]
       ...
 
   ndir_co2:
-    * field: \co2         , unit: \ppm    , value: [\int, [400, 10000]]     , $keep_error: yes # (annotation for any instance of same sensor type)
+    * field: \co2         , unit: \ppm      , value: [\int, [400, 10000]]     , $keep_error: yes # (annotation for any instance of same sensor type)
       ...
 
   ambient_light:
-    * field: \illuminance , unit: \lux    , value: [\int, [0, 64000]]       , $keep_error: no
+    * field: \illuminance , unit: \lux      , value: [\int, [0, 64000]]       , $keep_error: no
+      ...
 
   fan:
-    * field: \pwm         , unit: ''      , value: [\int, [1, 2395]]        , writeable: yes, $keep_error: yes
-    * field: \percentage  , unit: '%'     , value: [\int, [0, 100]]         , writeable: yes
+    * field: \pwm         , unit: ''        , value: [\int, [1, 2395]]        , writeable: yes, $keep_error: yes
+    * field: \percentage  , unit: '%'       , value: [\int, [0, 100]]         , writeable: yes
 
   led:
-    * field: \pwm         , unit: ''      , value: [\int, [1, 2395]]        , writeable: yes, $keep_error: yes
-    * field: \percentage  , unit: '%'     , value: [\int, [0, 100]]         , writeable: yes
+    * field: \pwm         , unit: ''        , value: [\int, [1, 2395]]        , writeable: yes, $keep_error: yes
+    * field: \percentage  , unit: '%'       , value: [\int, [0, 100]]         , writeable: yes
 
   pump:
-    * field: \vibration   , unit: ''      , value: [\boolean, <[no, yes]>]  , writeable: yes
+    * field: \vibration   , unit: ''        , value: [\boolean, <[no yes]>]  , writeable: yes
+      ...
 
   emoji:
-    * field: \value       , value: [\int, [0, 600], 1]                      , writeable: yes
-    * field: \mode        , value: [\enum, <[ascii pre_installed_image post_installed_image number pre_installed_animation post_installed_animation]>]
-    * field: \index       , $prefix: null, value: [\int, [0, 128]]
+    * field: \value                         , value: [\int, [0, 600], 1]      , writeable: yes
+    * field: \mode                          , value: [\enum, <[ascii pre_installed_image post_installed_image number pre_installed_animation post_installed_animation]>]
+    * field: \index                         , value: [\int, [0, 128]]
 
   # Legacy emoji display (old firmware)
   led_matrix:
@@ -89,15 +95,15 @@ class Sensorboard extends SchemaBaseClass
 
     ##
     # (Optional)
-    # Specify extra actuator actions (in addition to set_xxx) of those writeable sensors.
+    # Specify extra actuator actions (in addition to set_xxx) of those writeable sensor-types.
     #
     # Please note, these extra actuator actions are supplemental information to the defined sensor types.
     # So, all sensor instances of same sensor-type shall share these extra actuator actions if specified.
     #
     @actuators[\emoji] =
-      * action: \show_number    , value: [\int, [0, 99], 1]  , $prefix: \LMN
-      * action: \show_ascii     , value: [\int, [0, 127], 1] , $prefix: \LMA
-      * action: \show_animation , value: [\int, [0, 38], 1]  , $prefix: \LMF
+      * action: \show_number    , argument: [\int, [0, 99], 1]  , $action_prefix: \LMN
+      * action: \show_ascii     , argument: [\int, [0, 127], 1] , $action_prefix: \LMA
+      * action: \show_animation , argument: [\int, [0, 38], 1]  , $action_prefix: \LMF
 
 
 
