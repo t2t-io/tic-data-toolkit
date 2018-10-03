@@ -1,0 +1,18 @@
+classDiagram
+ROOT <|-- ElectricalEquipment
+ElectricalEquipment <|-- AirConditionEL
+ROOT <|-- ElectricalMeter
+ElectricalMeter <|-- TwoWayMeter
+ElectricalEquipment : electric_energy
+ElectricalEquipment : power_switch
+AirConditionEL : electric_energy
+AirConditionEL : power_switch
+AirConditionEL : user_settings
+AirConditionEL : air_flow_rate
+AirConditionEL : room_temperature
+ElectricalMeter : electric_energy
+ElectricalMeter : installation_location
+ElectricalMeter : fault_status
+TwoWayMeter : electric_energy
+TwoWayMeter : installation_location
+TwoWayMeter : fault_status

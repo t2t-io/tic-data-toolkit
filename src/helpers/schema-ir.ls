@@ -103,11 +103,11 @@ class SensorTypeClass
 
 class PeripheralTypeClass
   (@spec, @loader, @verbose) ->
-    {p_type, p_type_parent, classname, sensor_types} = spec
+    {p_type, p_type_parent, class_name, sensor_types} = spec
     self = @
     self.name = name = p_type
     self.parent-name = p_type_parent
-    self.classname = classname
+    self.classname = class_name
     INFO "loading #{name.cyan}" if verbose
     self.sensor-types = [ (new SensorTypeClass s, self, verbose) for s in sensor_types ]
     self.children = []
@@ -184,12 +184,13 @@ class Loader
     xs = ["p_type,s_type,s_id,name,writable,type,unit"] ++ xs
     return xs.join "\n"
 
-  reset-output: (initials=[]) ->
+  reset-output: (initials=[], spaces=2) ->
     initials = [] unless initials?
     @.output = initials
+    @.spaces = spaces
 
   append-output: (line, ident=0) ->
-    @.output.push "#{'  ' * ident}#{line}"
+    @.output.push "#{' ' * (ident * @spaces)}#{line}"
 
   to-spec: ->
     {p-types-ordered, manifest} = self = @
@@ -254,5 +255,44 @@ class Loader
             xs.sort!
             self.append-output "annotations: '#{JSON.stringify annotations}'", 4
     return self.output.join '\n'
+
+  to-class-lr-diagram: ->
+    {p-types-ordered} = self = @
+    self.reset-output [], 4
+    self.append-output "graph LR"
+    for pt in p-types-ordered
+      {name, parent-name} = pt
+      continue if name is SchemaBaseClassName
+      parent = if parent-name is SchemaBaseClassName then 'ROOT' else parent-name
+      self.append-output "#{name} --> #{parent}", 1
+    return self.output.join '\n'
+
+  to-class-diagram: ->
+    {p-types-ordered} = self = @
+    self.reset-output [], 4
+    self.append-output "classDiagram"
+    for pt in p-types-ordered
+      {name, classname, parent-name, parent} = pt
+      continue if name is SchemaBaseClassName
+      parent = if parent-name is SchemaBaseClassName then 'ROOT' else parent.classname
+      self.append-output "#{parent} <|-- #{classname}"
+    for pt in p-types-ordered
+      {name, classname, sensor-types} = pt
+      continue if name is SchemaBaseClassName
+      for st in sensor-types
+        self.append-output "#{classname} : #{st.name}"
+      /*
+      for st in sensor-types
+        {field-types} = st
+        for ft in field-types
+          self.append-output "#{classname} : #{ft.value-type} #{st.name}/#{ft.name}"
+      */
+    return self.output.join '\n'
+
+  to-mermaid-digrams: ->
+    class-lr = @.to-class-lr-diagram!
+    class-std = @.to-class-diagram!
+    return {class-lr, class-std}
+
 
 module.exports = exports = {Loader}
