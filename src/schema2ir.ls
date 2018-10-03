@@ -17,6 +17,7 @@ module.exports = exports =
     yargs
       .alias \o, \output
       .describe \o, 'compile into the specified directory'
+      .default \o, null
       .alias \s, \sqlite
       .describe \s, 'output sqlite3 database as well'
       .default \s, no
@@ -24,7 +25,7 @@ module.exports = exports =
       .describe \v, 'enable verbose messages'
       .default \v, no
       .alias \h, \help
-      .demand <[v o]>
+      .demand <[v]>
       .boolean <[v]>
       .epilogue """
         For example:
@@ -37,6 +38,7 @@ module.exports = exports =
     args.shift!
     return ERR "missing one argument as schema source" unless args.length > 0
     [file] = args
+    output = path.dirname file unless output?
     name = path.basename file, \.ls
     fullpath = "#{output}/#{name}.js"
     INFO "output => #{output}"

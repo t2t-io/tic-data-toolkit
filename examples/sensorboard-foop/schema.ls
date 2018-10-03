@@ -87,9 +87,9 @@ class Sensorboard extends SchemaBaseClass
     @sensors[\waterlevel].top2        = prefix: {value: \W1                     }
     @sensors[\ndir_co2].0             = prefix: {co2: \C                        }, model: \ds-t-110
     @sensors[\ambient_light].0        = prefix: {illuminance: \L                }, model: \ltr-303als-01
-    @sensors[\fan].left               = prefix: {pwm: \FSA                      }, model: \abc-001
-    @sensors[\fan].right              = prefix: {pwm: \FSB                      }, model: \abc-001
-    @sensors[\led].0                  = prefix: {pwm: \LD                       }, model: \def-002
+    @sensors[\fan].left               = prefix: {pwm: \FSA                      }, model: \EFC0812DBYLK
+    @sensors[\fan].right              = prefix: {pwm: \FSB                      }, model: \EFC0812DBYLK
+    @sensors[\led].0                  = prefix: {pwm: \LD                       }, model: \HL3528A-DQM-LF030T1-26501
     @sensors[\pump].0                 = prefix: {vibration: \PO                 }, model: \xyz-999
     @sensors[\emoji].0                = prefix: {value: \LM                     }, model: \www-123
 

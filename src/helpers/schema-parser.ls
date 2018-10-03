@@ -36,6 +36,16 @@ TRAVERSE_TREE = (name, classes) ->
   return [name] ++ ys
 
 
+REMOVE_SCHEMA_BASE_CLASS = (peripheral_types) ->
+  type = lodash.snakeCase BASE_CLASSNAME
+  xs = [ (lodash.merge {}, pt) for pt in peripheral_types when pt.p_type isnt type ]
+  for x in xs
+    x.p_type_parent = null if x.p_type_parent is type
+  return xs
+
+
+
+
 class SchemaBaseClass
   ->
     @sensors = {}
@@ -248,8 +258,9 @@ class PeripheralTypeClass
     {name, classname, ptc-parent, stc-list} = self = @
     p_type_parent = if ptc-parent? then ptc-parent.name else null
     p_type = name
+    class_name = classname
     sensor_types = [ s.to-json! for s in stc-list ]
-    return {p_type, p_type_parent, classname, sensor_types}
+    return {p_type, p_type_parent, class_name, sensor_types}
 
 
 
@@ -327,6 +338,7 @@ class SchemaParser
     [ t.load! for t in types ]
     [ t.dbg-hierachy! for t in types ]
     peripheral_types = [ p.to-json! for p in types ]
+    peripheral_types = REMOVE_SCHEMA_BASE_CLASS peripheral_types
     manifest = lodash.merge {format: 2, created_at: (new Date!)}, manifest
     self.jsonir = jsonir = {manifest, peripheral_types}
     self.yamlir = yamlir = js-yaml.safeDump jsonir, {skipInvalid: yes, noRefs: yes}

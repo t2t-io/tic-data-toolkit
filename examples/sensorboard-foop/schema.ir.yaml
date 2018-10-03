@@ -1,0 +1,253 @@
+manifest:
+  format: 2
+  created_at: 2018-10-03T15:47:54.255Z
+  name: cnsc-cdc
+  version: 0.1.1
+peripheral_types:
+  - p_type: sensorboard
+    p_type_parent: null
+    class_name: Sensorboard
+    sensor_types:
+      - s_type: humidity
+        instances:
+          - s_id: inside
+            annotations:
+              prefix:
+                temperature: TI
+                humidity: HI
+              model: st221
+          - s_id: outside
+            annotations:
+              prefix:
+                temperature: TE
+                humidity: HE
+              model: st221
+        fields:
+          - name: temperature
+            writeable: false
+            value:
+              type: float
+              range:
+                - -40
+                - 80
+            unit: degree_c
+            annotations: {}
+          - name: humidity
+            writeable: false
+            value:
+              type: int
+              range:
+                - 0
+                - 100
+            unit: '%rH'
+            annotations: {}
+        actions: []
+      - s_type: waterlevel
+        instances:
+          - s_id: top1
+            annotations:
+              prefix:
+                value: W
+          - s_id: top2
+            annotations:
+              prefix:
+                value: W1
+        fields:
+          - name: value
+            writeable: false
+            value:
+              type: boolean
+              range:
+                - 'no'
+                - 'yes'
+            unit: ''
+            annotations: {}
+        actions: []
+      - s_type: ndir_co2
+        instances:
+          - s_id: '0'
+            annotations:
+              prefix:
+                co2: C
+              model: ds-t-110
+        fields:
+          - name: co2
+            writeable: false
+            value:
+              type: int
+              range:
+                - 400
+                - 10000
+            unit: ppm
+            annotations:
+              keep_error: true
+        actions: []
+      - s_type: ambient_light
+        instances:
+          - s_id: '0'
+            annotations:
+              prefix:
+                illuminance: L
+              model: ltr-303als-01
+        fields:
+          - name: illuminance
+            writeable: false
+            value:
+              type: int
+              range:
+                - 0
+                - 64000
+            unit: lux
+            annotations:
+              keep_error: false
+        actions: []
+      - s_type: fan
+        instances:
+          - s_id: left
+            annotations:
+              prefix:
+                pwm: FSA
+              model: EFC0812DBYLK
+          - s_id: right
+            annotations:
+              prefix:
+                pwm: FSB
+              model: EFC0812DBYLK
+        fields:
+          - name: pwm
+            writeable: true
+            value:
+              type: int
+              range:
+                - 1
+                - 2395
+            unit: ''
+            annotations:
+              keep_error: true
+          - name: percentage
+            writeable: true
+            value:
+              type: int
+              range:
+                - 0
+                - 100
+            unit: '%'
+            annotations: {}
+        actions: []
+      - s_type: led
+        instances:
+          - s_id: '0'
+            annotations:
+              prefix:
+                pwm: LD
+              model: HL3528A-DQM-LF030T1-26501
+        fields:
+          - name: pwm
+            writeable: true
+            value:
+              type: int
+              range:
+                - 1
+                - 2395
+            unit: ''
+            annotations:
+              keep_error: true
+          - name: percentage
+            writeable: true
+            value:
+              type: int
+              range:
+                - 0
+                - 100
+            unit: '%'
+            annotations: {}
+        actions: []
+      - s_type: pump
+        instances:
+          - s_id: '0'
+            annotations:
+              prefix:
+                vibration: PO
+              model: xyz-999
+        fields:
+          - name: vibration
+            writeable: true
+            value:
+              type: boolean
+              range:
+                - 'no'
+                - 'yes'
+            unit: ''
+            annotations: {}
+        actions: []
+      - s_type: emoji
+        instances:
+          - s_id: '0'
+            annotations:
+              prefix:
+                value: LM
+              model: www-123
+        fields:
+          - name: value
+            writeable: true
+            value:
+              type: int
+              range:
+                - 0
+                - 600
+              incremental: 1
+            unit: ''
+            annotations: {}
+          - name: mode
+            writeable: false
+            value:
+              type: enum
+              range:
+                - ascii
+                - pre_installed_image
+                - post_installed_image
+                - number
+                - pre_installed_animation
+                - post_installed_animation
+            unit: ''
+            annotations: {}
+          - name: index
+            writeable: false
+            value:
+              type: int
+              range:
+                - 0
+                - 128
+            unit: ''
+            annotations: {}
+        actions:
+          - name: show_number
+            argument:
+              type: int
+              range:
+                - 0
+                - 99
+              incremental: 1
+            unit: ''
+            annotations:
+              action_prefix: LMN
+          - name: show_ascii
+            argument:
+              type: int
+              range:
+                - 0
+                - 127
+              incremental: 1
+            unit: ''
+            annotations:
+              action_prefix: LMA
+          - name: show_animation
+            argument:
+              type: int
+              range:
+                - 0
+                - 38
+              incremental: 1
+            unit: ''
+            annotations:
+              action_prefix: LMF
