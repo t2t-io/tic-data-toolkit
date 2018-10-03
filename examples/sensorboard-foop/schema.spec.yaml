@@ -1,0 +1,102 @@
+manifest:
+  format: 2
+  created_at: '2018-10-03T16:40:43.494Z'
+  name: cnsc-cdc
+  version: 0.1.1
+
+peripheral_types:
+  sensorboard:
+    p_type: sensorboard
+    p_type_parent: __ROOT__
+    sensors:
+      - path : humidity/inside/temperature
+        unit : 'degree_c'
+        writeable : false
+        value: [float, [-40, 80]]
+        annotations: '{"prefix":{"temperature":"TI","humidity":"HI"},"model":"st221"}'
+      - path : humidity/inside/humidity
+        unit : '%rH'
+        writeable : false
+        value: [int, [0, 100]]
+        annotations: '{"prefix":{"temperature":"TI","humidity":"HI"},"model":"st221"}'
+      - path : humidity/outside/temperature
+        unit : 'degree_c'
+        writeable : false
+        value: [float, [-40, 80]]
+        annotations: '{"prefix":{"temperature":"TE","humidity":"HE"},"model":"st221"}'
+      - path : humidity/outside/humidity
+        unit : '%rH'
+        writeable : false
+        value: [int, [0, 100]]
+        annotations: '{"prefix":{"temperature":"TE","humidity":"HE"},"model":"st221"}'
+      - path : waterlevel/top1/value
+        writeable : false
+        value: [boolean, [no, yes]]
+        annotations: '{"prefix":{"value":"W"}}'
+      - path : waterlevel/top2/value
+        writeable : false
+        value: [boolean, [no, yes]]
+        annotations: '{"prefix":{"value":"W1"}}'
+      - path : ndir_co2/0/co2
+        unit : 'ppm'
+        writeable : false
+        value: [int, [400, 10000]]
+        annotations: '{"keep_error":true,"prefix":{"co2":"C"},"model":"ds-t-110"}'
+      - path : ambient_light/0/illuminance
+        unit : 'lux'
+        writeable : false
+        value: [int, [0, 64000]]
+        annotations: '{"keep_error":false,"prefix":{"illuminance":"L"},"model":"ltr-303als-01"}'
+      - path : fan/left/pwm
+        writeable : true
+        value: [int, [1, 2395]]
+        annotations: '{"keep_error":true,"prefix":{"pwm":"FSA"},"model":"EFC0812DBYLK"}'
+      - path : fan/left/percentage
+        unit : '%'
+        writeable : true
+        value: [int, [0, 100]]
+        annotations: '{"prefix":{"pwm":"FSA"},"model":"EFC0812DBYLK"}'
+      - path : fan/right/pwm
+        writeable : true
+        value: [int, [1, 2395]]
+        annotations: '{"keep_error":true,"prefix":{"pwm":"FSB"},"model":"EFC0812DBYLK"}'
+      - path : fan/right/percentage
+        unit : '%'
+        writeable : true
+        value: [int, [0, 100]]
+        annotations: '{"prefix":{"pwm":"FSB"},"model":"EFC0812DBYLK"}'
+      - path : led/0/pwm
+        writeable : true
+        value: [int, [1, 2395]]
+        annotations: '{"keep_error":true,"prefix":{"pwm":"LD"},"model":"HL3528A-DQM-LF030T1-26501"}'
+      - path : led/0/percentage
+        unit : '%'
+        writeable : true
+        value: [int, [0, 100]]
+        annotations: '{"prefix":{"pwm":"LD"},"model":"HL3528A-DQM-LF030T1-26501"}'
+      - path : pump/0/vibration
+        writeable : true
+        value: [boolean, [no, yes]]
+        annotations: '{"prefix":{"vibration":"PO"},"model":"xyz-999"}'
+      - path : emoji/0/value
+        writeable : true
+        value: [int, [0, 600], 1]
+        annotations: '{"prefix":{"value":"LM"},"model":"www-123"}'
+      - path : emoji/0/mode
+        writeable : false
+        value: [enum, [ascii, pre_installed_image, post_installed_image, number, pre_installed_animation, post_installed_animation]]
+        annotations: '{"prefix":{"value":"LM"},"model":"www-123"}'
+      - path : emoji/0/index
+        writeable : false
+        value: [int, [0, 128]]
+        annotations: '{"prefix":{"value":"LM"},"model":"www-123"}'
+    actuators:
+      - path: emoji/0/show_number
+        arg : [int, [0, 99], 1]
+        annotations: '{"action_prefix":"LMN","prefix":{"value":"LM"},"model":"www-123"}'
+      - path: emoji/0/show_ascii
+        arg : [int, [0, 127], 1]
+        annotations: '{"action_prefix":"LMA","prefix":{"value":"LM"},"model":"www-123"}'
+      - path: emoji/0/show_animation
+        arg : [int, [0, 38], 1]
+        annotations: '{"action_prefix":"LMF","prefix":{"value":"LM"},"model":"www-123"}'

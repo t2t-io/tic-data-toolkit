@@ -200,31 +200,32 @@ class Loader
     for p in p-types-ordered
       {sensor-types} = p
       continue unless sensor-types.length > 0
-      self.append-output "p_type: #{p.name}", 1
-      self.append-output "p_type_parent: #{if p.parent is self.root then ROOT else p.parent.name}", 1
-      self.append-output "sensors:", 1
+      self.append-output "#{p.name}:", 1
+      self.append-output "p_type: #{p.name}", 2
+      self.append-output "p_type_parent: #{if p.parent is self.root then ROOT else p.parent.name}", 2
+      self.append-output "sensors:", 2
       for st in sensor-types
         {sensor-instances} = st
         for si in sensor-instances
           {field-types} = st
           for ft in field-types
             {value-type, value-unit, writeable, description} = ft
-            self.append-output "- path : #{st.name}/#{si.id}/#{ft.name}", 2
-            self.append-output "unit : '#{value-unit}'", 3 if value-unit? and \string is typeof value-unit and '' != value-unit
-            self.append-output "writeable : #{writeable}", 3
-            self.append-output "description: '#{description}'", 3 if description? and \string is typeof description and '' != description
+            self.append-output "- path : #{st.name}/#{si.id}/#{ft.name}", 3
+            self.append-output "unit : '#{value-unit}'", 4 if value-unit? and \string is typeof value-unit and '' != value-unit
+            self.append-output "writeable : #{writeable}", 4
+            self.append-output "description: '#{description}'", 4 if description? and \string is typeof description and '' != description
             if value-type in <[enum boolean]>
-              self.append-output "value: [#{value-type}, [#{ft.value-range.join ', '}]]", 3
+              self.append-output "value: [#{value-type}, [#{ft.value-range.join ', '}]]", 4
             else if value-type in <[int float]>
               line = "value: [#{value-type}, [#{ft.value-range.join ', '}]"
               line = if ft.value-incremental? then "#{line}, #{ft.value-incremental}]" else "#{line}]"
-              self.append-output line, 3
+              self.append-output line, 4
             else
-              self.append-output "# unsupported type: #{value-type}", 3
+              self.append-output "# unsupported type: #{value-type}", 4
             annotations = ft.get-annotations si
             xs = [ k for k, v of annotations ]
             continue unless xs.length > 0
-            self.append-output "annotations: '#{JSON.stringify annotations}'", 3
+            self.append-output "annotations: '#{JSON.stringify annotations}'", 4
       self.spec-actuator-output-flag = no
       for st in sensor-types
         {sensor-instances} = st
@@ -233,25 +234,25 @@ class Loader
           continue unless action-types.length > 0
           if not self.spec-actuator-output-flag
             self.spec-actuator-output-flag = yes
-            self.append-output "actuators:", 1
+            self.append-output "actuators:", 2
           for at in action-types
             {argument-type, argument-unit, description} = at
-            self.append-output "- path: #{st.name}/#{si.id}/#{at.name}", 2
-            self.append-output "unit: '#{argument-unit}'", 3 if argument-unit? and \string is typeof argument-unit and '' != argument-unit
-            self.append-output "description: '#{description}'", 3 if description? and \string is typeof description and '' != description
+            self.append-output "- path: #{st.name}/#{si.id}/#{at.name}", 3
+            self.append-output "unit: '#{argument-unit}'", 4 if argument-unit? and \string is typeof argument-unit and '' != argument-unit
+            self.append-output "description: '#{description}'", 4 if description? and \string is typeof description and '' != description
             if argument-type in <[enum boolean]>
-              self.append-output "arg : [#{argument-type}, [#{at.argument-range.join ', '}]]", 3
+              self.append-output "arg : [#{argument-type}, [#{at.argument-range.join ', '}]]", 4
             else if argument-type in <[int float]>
               line = "arg : [#{argument-type}, [#{at.argument-range.join ', '}]"
               line = if at.argument-incremental? then "#{line}, #{at.argument-incremental}]" else "#{line}]"
-              self.append-output line, 3
+              self.append-output line, 4
             else
-              self.append-output "# unsupported type: #{argument-type}", 3
+              self.append-output "# unsupported type: #{argument-type}", 4
             annotations = at.get-annotations si
             xs = [ k for k, v of annotations ]
             continue unless xs.length > 0
             xs.sort!
-            self.append-output "annotations: '#{JSON.stringify annotations}'", 3
+            self.append-output "annotations: '#{JSON.stringify annotations}'", 4
     return self.output.join '\n'
 
 module.exports = exports = {Loader}

@@ -1,11 +1,15 @@
 manifest:
   format: 2
-  created_at: 2018-10-03T15:47:54.255Z
+  created_at: 2018-10-03T16:40:43.494Z
   name: cnsc-cdc
   version: 0.1.1
 peripheral_types:
-  - p_type: sensorboard
+  - p_type: schema_base_class
     p_type_parent: null
+    class_name: SchemaBaseClass
+    sensor_types: []
+  - p_type: sensorboard
+    p_type_parent: schema_base_class
     class_name: Sensorboard
     sensor_types:
       - s_type: humidity

@@ -338,7 +338,7 @@ class SchemaParser
     [ t.load! for t in types ]
     [ t.dbg-hierachy! for t in types ]
     peripheral_types = [ p.to-json! for p in types ]
-    peripheral_types = REMOVE_SCHEMA_BASE_CLASS peripheral_types
+    # peripheral_types = REMOVE_SCHEMA_BASE_CLASS peripheral_types
     manifest = lodash.merge {format: 2, created_at: (new Date!)}, manifest
     self.jsonir = jsonir = {manifest, peripheral_types}
     self.yamlir = yamlir = js-yaml.safeDump jsonir, {skipInvalid: yes, noRefs: yes}
