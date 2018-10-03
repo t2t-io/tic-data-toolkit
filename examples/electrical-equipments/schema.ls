@@ -19,6 +19,11 @@ SchemaBaseClass = SCHEMA_BASE_CLASS if SCHEMA_BASE_CLASS?
 /** Please Don't Modify These Lines Above   */
 
 
+MANIFEST =
+  name: \electrical-equipments
+  version: \0.1.2
+
+
 class ElectricalMeter extends SchemaBaseClass
   electric_energy:
     * field: \energy                , value: [\int, [0, 1000]]            , unit: \w    , description: "the currently-consumed energy"
