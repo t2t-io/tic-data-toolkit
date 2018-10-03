@@ -1,0 +1,576 @@
+{
+ "manifest": {
+  "format": 2,
+  "created_at": "2018-10-03T16:43:48.819Z",
+  "name": "electrical-equipments",
+  "version": "0.1.2"
+ },
+ "peripheral_types": [
+  {
+   "p_type": "schema_base_class",
+   "p_type_parent": null,
+   "class_name": "SchemaBaseClass",
+   "sensor_types": []
+  },
+  {
+   "p_type": "electrical_equipment",
+   "p_type_parent": "schema_base_class",
+   "class_name": "ElectricalEquipment",
+   "sensor_types": [
+    {
+     "s_type": "electric_energy",
+     "instances": [
+      {
+       "s_id": "0",
+       "annotations": {}
+      }
+     ],
+     "fields": [
+      {
+       "name": "energy",
+       "writeable": false,
+       "value": {
+        "type": "int",
+        "range": [
+         0,
+         1000
+        ]
+       },
+       "unit": "w",
+       "annotations": {}
+      },
+      {
+       "name": "energy_cumulative",
+       "writeable": false,
+       "value": {
+        "type": "int",
+        "range": [
+         0,
+         1000
+        ]
+       },
+       "unit": "Wh",
+       "annotations": {}
+      }
+     ],
+     "actions": []
+    },
+    {
+     "s_type": "power_switch",
+     "instances": [
+      {
+       "s_id": "0",
+       "annotations": {}
+      }
+     ],
+     "fields": [
+      {
+       "name": "value",
+       "writeable": true,
+       "value": {
+        "type": "boolean",
+        "range": [
+         "off",
+         "on"
+        ]
+       },
+       "unit": "",
+       "annotations": {}
+      }
+     ],
+     "actions": []
+    }
+   ]
+  },
+  {
+   "p_type": "air_condition_el",
+   "p_type_parent": "electrical_equipment",
+   "class_name": "AirConditionEL",
+   "sensor_types": [
+    {
+     "s_type": "electric_energy",
+     "instances": [
+      {
+       "s_id": "0",
+       "annotations": {}
+      }
+     ],
+     "fields": [
+      {
+       "name": "energy",
+       "writeable": false,
+       "value": {
+        "type": "int",
+        "range": [
+         0,
+         1000
+        ]
+       },
+       "unit": "w",
+       "annotations": {}
+      },
+      {
+       "name": "energy_cumulative",
+       "writeable": false,
+       "value": {
+        "type": "int",
+        "range": [
+         0,
+         1000
+        ]
+       },
+       "unit": "Wh",
+       "annotations": {}
+      }
+     ],
+     "actions": []
+    },
+    {
+     "s_type": "power_switch",
+     "instances": [
+      {
+       "s_id": "0",
+       "annotations": {}
+      }
+     ],
+     "fields": [
+      {
+       "name": "value",
+       "writeable": true,
+       "value": {
+        "type": "boolean",
+        "range": [
+         "off",
+         "on"
+        ]
+       },
+       "unit": "",
+       "annotations": {}
+      }
+     ],
+     "actions": []
+    },
+    {
+     "s_type": "user_settings",
+     "instances": [
+      {
+       "s_id": "0",
+       "annotations": {
+        "echonet": {
+         "operation_mode": [
+          "b0",
+          [
+           65,
+           66,
+           67,
+           68,
+           69,
+           64
+          ]
+         ],
+         "power_saving_mode": [
+          "8f",
+          [
+           65,
+           66
+          ]
+         ]
+        }
+       }
+      }
+     ],
+     "fields": [
+      {
+       "name": "operation_mode",
+       "writeable": true,
+       "value": {
+        "type": "enum",
+        "range": [
+         "auto",
+         "cooling",
+         "heating",
+         "dehumidification",
+         "circulator",
+         "other"
+        ]
+       },
+       "unit": "",
+       "annotations": {}
+      },
+      {
+       "name": "target_temperature",
+       "writeable": true,
+       "value": {
+        "type": "float",
+        "range": [
+         22,
+         26
+        ],
+        "incremental": 0.5
+       },
+       "unit": "degree_c",
+       "annotations": {}
+      },
+      {
+       "name": "power_saving_mode",
+       "writeable": true,
+       "value": {
+        "type": "enum",
+        "range": [
+         "power_saving",
+         "normal"
+        ]
+       },
+       "unit": "",
+       "annotations": {}
+      }
+     ],
+     "actions": [
+      {
+       "name": "cleanup_self",
+       "argument": {
+        "type": "boolean",
+        "range": [
+         "off,",
+         "on"
+        ]
+       },
+       "unit": "",
+       "annotations": {}
+      },
+      {
+       "name": "set_special_mode",
+       "argument": {
+        "type": "enum",
+        "range": [
+         "human_sleeping",
+         "offical_working",
+         "home_standby"
+        ]
+       },
+       "unit": "",
+       "annotations": {
+        "parameters": {
+         "human_sleeping": {
+          "target_temperature": 26,
+          "operation_mode": "auto"
+         },
+         "offical_working": {
+          "target_temperature": 24,
+          "operation_mode": "cooling"
+         },
+         "home_standby": {
+          "target_temperature": 27,
+          "operation_mode": "circulator"
+         }
+        }
+       }
+      }
+     ]
+    },
+    {
+     "s_type": "air_flow_rate",
+     "instances": [
+      {
+       "s_id": "0",
+       "annotations": {
+        "echonet": {
+         "value": [
+          "a0",
+          [
+           65,
+           49,
+           50,
+           51,
+           52,
+           53,
+           54,
+           55,
+           56
+          ]
+         ]
+        }
+       }
+      }
+     ],
+     "fields": [
+      {
+       "name": "value",
+       "writeable": true,
+       "value": {
+        "type": "enum",
+        "range": [
+         "auto",
+         "1",
+         "2",
+         "3",
+         "4",
+         "5",
+         "6",
+         "7",
+         "8"
+        ]
+       },
+       "unit": "",
+       "annotations": {}
+      }
+     ],
+     "actions": []
+    },
+    {
+     "s_type": "room_temperature",
+     "instances": [
+      {
+       "s_id": "0",
+       "annotations": {}
+      }
+     ],
+     "fields": [
+      {
+       "name": "temperature",
+       "writeable": false,
+       "value": {
+        "type": "float",
+        "range": [
+         20,
+         40
+        ]
+       },
+       "unit": "degree_c",
+       "annotations": {}
+      }
+     ],
+     "actions": []
+    }
+   ]
+  },
+  {
+   "p_type": "electrical_meter",
+   "p_type_parent": "schema_base_class",
+   "class_name": "ElectricalMeter",
+   "sensor_types": [
+    {
+     "s_type": "electric_energy",
+     "instances": [
+      {
+       "s_id": "0",
+       "annotations": {}
+      }
+     ],
+     "fields": [
+      {
+       "name": "energy",
+       "writeable": false,
+       "value": {
+        "type": "int",
+        "range": [
+         0,
+         1000
+        ]
+       },
+       "unit": "w",
+       "annotations": {}
+      },
+      {
+       "name": "energy_cumulative",
+       "writeable": false,
+       "value": {
+        "type": "float",
+        "range": [
+         0,
+         999999990000
+        ]
+       },
+       "unit": "kWh",
+       "annotations": {}
+      }
+     ],
+     "actions": []
+    },
+    {
+     "s_type": "installation_location",
+     "instances": [
+      {
+       "s_id": "0",
+       "annotations": {}
+      }
+     ],
+     "fields": [
+      {
+       "name": "type",
+       "writeable": true,
+       "value": {
+        "type": "enum",
+        "range": [
+         "living_room",
+         "dining_room",
+         "kitchen",
+         "bathroom",
+         "lavatory",
+         "washroom_changing_room",
+         "passageway",
+         "room",
+         "stairway",
+         "front_door",
+         "storeroom",
+         "garden_perimeter",
+         "garage",
+         "veranda_balcony",
+         "others",
+         "free_definition",
+         "not_specified",
+         "indifinite",
+         "position_information"
+        ]
+       },
+       "unit": "",
+       "annotations": {}
+      }
+     ],
+     "actions": []
+    },
+    {
+     "s_type": "fault_status",
+     "instances": [
+      {
+       "s_id": "0",
+       "annotations": {}
+      }
+     ],
+     "fields": [
+      {
+       "name": "value",
+       "writeable": false,
+       "value": {
+        "type": "enum",
+        "range": [
+         "no_fault",
+         "fault"
+        ]
+       },
+       "unit": "",
+       "annotations": {}
+      }
+     ],
+     "actions": []
+    }
+   ]
+  },
+  {
+   "p_type": "two_way_meter",
+   "p_type_parent": "electrical_meter",
+   "class_name": "TwoWayMeter",
+   "sensor_types": [
+    {
+     "s_type": "electric_energy",
+     "instances": [
+      {
+       "s_id": "0",
+       "annotations": {}
+      },
+      {
+       "s_id": "1",
+       "annotations": {}
+      }
+     ],
+     "fields": [
+      {
+       "name": "energy",
+       "writeable": false,
+       "value": {
+        "type": "int",
+        "range": [
+         0,
+         1000
+        ]
+       },
+       "unit": "w",
+       "annotations": {}
+      },
+      {
+       "name": "energy_cumulative",
+       "writeable": false,
+       "value": {
+        "type": "float",
+        "range": [
+         0,
+         999999990000
+        ]
+       },
+       "unit": "kWh",
+       "annotations": {}
+      }
+     ],
+     "actions": []
+    },
+    {
+     "s_type": "installation_location",
+     "instances": [
+      {
+       "s_id": "0",
+       "annotations": {}
+      }
+     ],
+     "fields": [
+      {
+       "name": "type",
+       "writeable": true,
+       "value": {
+        "type": "enum",
+        "range": [
+         "living_room",
+         "dining_room",
+         "kitchen",
+         "bathroom",
+         "lavatory",
+         "washroom_changing_room",
+         "passageway",
+         "room",
+         "stairway",
+         "front_door",
+         "storeroom",
+         "garden_perimeter",
+         "garage",
+         "veranda_balcony",
+         "others",
+         "free_definition",
+         "not_specified",
+         "indifinite",
+         "position_information"
+        ]
+       },
+       "unit": "",
+       "annotations": {}
+      }
+     ],
+     "actions": []
+    },
+    {
+     "s_type": "fault_status",
+     "instances": [
+      {
+       "s_id": "0",
+       "annotations": {}
+      }
+     ],
+     "fields": [
+      {
+       "name": "value",
+       "writeable": false,
+       "value": {
+        "type": "enum",
+        "range": [
+         "no_fault",
+         "fault"
+        ]
+       },
+       "unit": "",
+       "annotations": {}
+      }
+     ],
+     "actions": []
+    }
+   ]
+  }
+ ]
+}

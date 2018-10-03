@@ -1,0 +1,109 @@
+manifest:
+  format: 2
+  created_at: '2018-10-03T16:43:48.819Z'
+  name: electrical-equipments
+  version: 0.1.2
+
+peripheral_types:
+  electrical_equipment:
+    p_type: electrical_equipment
+    p_type_parent: __ROOT__
+    sensors:
+      - path : electric_energy/0/energy
+        unit : 'w'
+        writeable : false
+        value: [int, [0, 1000]]
+      - path : electric_energy/0/energy_cumulative
+        unit : 'Wh'
+        writeable : false
+        value: [int, [0, 1000]]
+      - path : power_switch/0/value
+        writeable : true
+        value: [boolean, [off, on]]
+  air_condition_el:
+    p_type: air_condition_el
+    p_type_parent: electrical_equipment
+    sensors:
+      - path : electric_energy/0/energy
+        unit : 'w'
+        writeable : false
+        value: [int, [0, 1000]]
+      - path : electric_energy/0/energy_cumulative
+        unit : 'Wh'
+        writeable : false
+        value: [int, [0, 1000]]
+      - path : power_switch/0/value
+        writeable : true
+        value: [boolean, [off, on]]
+      - path : user_settings/0/operation_mode
+        writeable : true
+        value: [enum, [auto, cooling, heating, dehumidification, circulator, other]]
+        annotations: '{"echonet":{"operation_mode":["b0",[65,66,67,68,69,64]],"power_saving_mode":["8f",[65,66]]}}'
+      - path : user_settings/0/target_temperature
+        unit : 'degree_c'
+        writeable : true
+        value: [float, [22, 26], 0.5]
+        annotations: '{"echonet":{"operation_mode":["b0",[65,66,67,68,69,64]],"power_saving_mode":["8f",[65,66]]}}'
+      - path : user_settings/0/power_saving_mode
+        writeable : true
+        value: [enum, [power_saving, normal]]
+        annotations: '{"echonet":{"operation_mode":["b0",[65,66,67,68,69,64]],"power_saving_mode":["8f",[65,66]]}}'
+      - path : air_flow_rate/0/value
+        writeable : true
+        value: [enum, [auto, 1, 2, 3, 4, 5, 6, 7, 8]]
+        annotations: '{"echonet":{"value":["a0",[65,49,50,51,52,53,54,55,56]]}}'
+      - path : room_temperature/0/temperature
+        unit : 'degree_c'
+        writeable : false
+        value: [float, [20, 40]]
+    actuators:
+      - path: user_settings/0/cleanup_self
+        arg : [boolean, [off,, on]]
+        annotations: '{"echonet":{"operation_mode":["b0",[65,66,67,68,69,64]],"power_saving_mode":["8f",[65,66]]}}'
+      - path: user_settings/0/set_special_mode
+        arg : [enum, [human_sleeping, offical_working, home_standby]]
+        annotations: '{"parameters":{"human_sleeping":{"target_temperature":26,"operation_mode":"auto"},"offical_working":{"target_temperature":24,"operation_mode":"cooling"},"home_standby":{"target_temperature":27,"operation_mode":"circulator"}},"echonet":{"operation_mode":["b0",[65,66,67,68,69,64]],"power_saving_mode":["8f",[65,66]]}}'
+  electrical_meter:
+    p_type: electrical_meter
+    p_type_parent: __ROOT__
+    sensors:
+      - path : electric_energy/0/energy
+        unit : 'w'
+        writeable : false
+        value: [int, [0, 1000]]
+      - path : electric_energy/0/energy_cumulative
+        unit : 'kWh'
+        writeable : false
+        value: [float, [0, 999999990000]]
+      - path : installation_location/0/type
+        writeable : true
+        value: [enum, [living_room, dining_room, kitchen, bathroom, lavatory, washroom_changing_room, passageway, room, stairway, front_door, storeroom, garden_perimeter, garage, veranda_balcony, others, free_definition, not_specified, indifinite, position_information]]
+      - path : fault_status/0/value
+        writeable : false
+        value: [enum, [no_fault, fault]]
+  two_way_meter:
+    p_type: two_way_meter
+    p_type_parent: electrical_meter
+    sensors:
+      - path : electric_energy/0/energy
+        unit : 'w'
+        writeable : false
+        value: [int, [0, 1000]]
+      - path : electric_energy/0/energy_cumulative
+        unit : 'kWh'
+        writeable : false
+        value: [float, [0, 999999990000]]
+      - path : electric_energy/1/energy
+        unit : 'w'
+        writeable : false
+        value: [int, [0, 1000]]
+      - path : electric_energy/1/energy_cumulative
+        unit : 'kWh'
+        writeable : false
+        value: [float, [0, 999999990000]]
+      - path : installation_location/0/type
+        writeable : true
+        value: [enum, [living_room, dining_room, kitchen, bathroom, lavatory, washroom_changing_room, passageway, room, stairway, front_door, storeroom, garden_perimeter, garage, veranda_balcony, others, free_definition, not_specified, indifinite, position_information]]
+      - path : fault_status/0/value
+        writeable : false
+        value: [enum, [no_fault, fault]]

@@ -77,15 +77,17 @@ class ElectricalEquipment extends SchemaBaseClass
       power_switch      : <[0]>
 
 
-class AirConditionEnl extends ElectricalEquipment
+class AirConditionEL extends ElectricalEquipment
   user_settings:
     * field: \operation_mode        , value: [\enum, <[auto cooling heating dehumidification circulator other]>], writeable: yes
     * field: \target_temperature    , value: [\float, [22.0, 26.0], 0.5]        , writeable: yes, unit: \degree_c
     * field: \power_saving_mode     , value: [\enum, <[power_saving normal]>]   , writeable: yes
   air_flow_rate:
     * field: \value                 , value: [\enum, <[auto 1 2 3 4 5 6 7 8]>]  , writeable: yes
+      ...
   room_temperature:
     * field: \temperature           , value: [\float, [20.0, 40.0]]             , unit: \degree_c
+      ...
 
   ->
     super!
@@ -114,8 +116,8 @@ class AirConditionEnl extends ElectricalEquipment
     # So, all sensor instances of same sensor-type shall share these extra actuator actions if specified.
     #
     @actuators[\user_settings] =
-      * action: \cleanup_self           , value: [\boolean, [off, on]]
-      * action: \set_special_mode       , value: [\enum, <[human_sleeping offical_working home_standby]>]
+      * action: \cleanup_self           , argument: [\boolean, <[off, on]>]
+      * action: \set_special_mode       , argument: [\enum, <[human_sleeping offical_working home_standby]>]
         $parameters:
           human_sleeping: {target_temperature: 26.0, operation_mode: \auto}
           offical_working: {target_temperature: 24.0, operation_mode: \cooling}
