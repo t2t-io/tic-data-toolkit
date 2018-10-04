@@ -5,9 +5,10 @@ manifest:
   version: 0.1.2
 
 peripheral_types:
+
   electrical_equipment:
-    p_type: electrical_equipment
-    p_type_parent: __ROOT__
+    parent: __ROOT__
+    class_name: ElectricalEquipment
     sensors:
       - path : electric_energy/0/energy
         unit : 'w'
@@ -20,9 +21,10 @@ peripheral_types:
       - path : power_switch/0/value
         writeable : true
         value: [boolean, [off, on]]
+
   air_condition_el:
-    p_type: air_condition_el
-    p_type_parent: electrical_equipment
+    parent: electrical_equipment
+    class_name: AirConditionEL
     sensors:
       - path : electric_energy/0/energy
         unit : 'w'
@@ -63,9 +65,10 @@ peripheral_types:
       - path: user_settings/0/set_special_mode
         arg : [enum, [human_sleeping, offical_working, home_standby]]
         annotations: '{"parameters":{"human_sleeping":{"target_temperature":26,"operation_mode":"auto"},"offical_working":{"target_temperature":24,"operation_mode":"cooling"},"home_standby":{"target_temperature":27,"operation_mode":"circulator"}},"echonet":{"operation_mode":["b0",[65,66,67,68,69,64]],"power_saving_mode":["8f",[65,66]]}}'
+
   electrical_meter:
-    p_type: electrical_meter
-    p_type_parent: __ROOT__
+    parent: __ROOT__
+    class_name: ElectricalMeter
     sensors:
       - path : electric_energy/0/energy
         unit : 'w'
@@ -81,9 +84,10 @@ peripheral_types:
       - path : fault_status/0/value
         writeable : false
         value: [enum, [no_fault, fault]]
+
   two_way_meter:
-    p_type: two_way_meter
-    p_type_parent: electrical_meter
+    parent: electrical_meter
+    class_name: TwoWayMeter
     sensors:
       - path : electric_energy/0/energy
         unit : 'w'

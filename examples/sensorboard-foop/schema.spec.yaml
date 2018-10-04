@@ -5,9 +5,10 @@ manifest:
   version: 0.1.1
 
 peripheral_types:
+
   sensorboard:
-    p_type: sensorboard
-    p_type_parent: __ROOT__
+    parent: __ROOT__
+    class_name: Sensorboard
     sensors:
       - path : humidity/inside/temperature
         unit : 'degree_c'
