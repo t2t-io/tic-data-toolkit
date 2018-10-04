@@ -201,9 +201,10 @@ class Loader
     for p in p-types-ordered
       {sensor-types} = p
       continue unless sensor-types.length > 0
+      self.append-output ""
       self.append-output "#{p.name}:", 1
-      self.append-output "p_type: #{p.name}", 2
-      self.append-output "p_type_parent: #{if p.parent is self.root then ROOT else p.parent.name}", 2
+      self.append-output "parent: #{if p.parent is self.root then ROOT else p.parent.name}", 2
+      self.append-output "class_name: #{p.classname}", 2
       self.append-output "sensors:", 2
       for st in sensor-types
         {sensor-instances} = st
