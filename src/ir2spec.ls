@@ -9,7 +9,7 @@ WRITE_FILE = (fullpath, text) ->
 
 module.exports = exports =
   command: "ir2spec"
-  describe: "generate spec.yaml for SensorWeb to load"
+  describe: "generate the legacy spec.yaml for SensorWeb3 to load (deprecated since SensorWeb4)"
 
   builder: (yargs) ->
     yargs
