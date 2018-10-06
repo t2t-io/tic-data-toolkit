@@ -1,0 +1,113 @@
+device_prototype:
+
+  electrical_equipment:
+    p_type: electrical_equipment
+    p_id: '0' # deprecated
+    updated_at: null
+    status: null
+    version: null
+    metadata:
+      sensors:
+        - address : electric_energy/0/energy
+          unit : 'w'
+          int: [0, 1000]
+        - address : electric_energy/0/energy_cumulative
+          unit : 'Wh'
+          int: [0, 1000]
+        - address : power_switch/0/value
+          enum: [off, on]
+      actuators:
+        - address : power_switch/0/value
+          enum: [off, on]
+
+  air_condition_el:
+    p_type: air_condition_el
+    p_id: '0' # deprecated
+    updated_at: null
+    status: null
+    version: null
+    metadata:
+      sensors:
+        - address : electric_energy/0/energy
+          unit : 'w'
+          int: [0, 1000]
+        - address : electric_energy/0/energy_cumulative
+          unit : 'Wh'
+          int: [0, 1000]
+        - address : power_switch/0/value
+          enum: [off, on]
+        - address : user_settings/0/operation_mode
+          enum: [auto, cooling, heating, dehumidification, circulator, other]
+        - address : user_settings/0/target_temperature
+          unit : 'degree_c'
+          float: [22, 26]
+          precision: 0.5
+        - address : user_settings/0/power_saving_mode
+          enum: [power_saving, normal]
+        - address : air_flow_rate/0/value
+          enum: [auto, 1, 2, 3, 4, 5, 6, 7, 8]
+        - address : room_temperature/0/temperature
+          unit : 'degree_c'
+          float: [20, 40]
+      actuators:
+        - address : power_switch/0/value
+          enum: [off, on]
+        - address : user_settings/0/operation_mode
+          enum: [auto, cooling, heating, dehumidification, circulator, other]
+        - address : user_settings/0/target_temperature
+          float: [22, 26]
+          precision: 0.5
+        - address : user_settings/0/power_saving_mode
+          enum: [power_saving, normal]
+        - address : air_flow_rate/0/value
+          enum: [auto, 1, 2, 3, 4, 5, 6, 7, 8]
+
+  electrical_meter:
+    p_type: electrical_meter
+    p_id: '0' # deprecated
+    updated_at: null
+    status: null
+    version: null
+    metadata:
+      sensors:
+        - address : electric_energy/0/energy
+          unit : 'w'
+          int: [0, 1000]
+        - address : electric_energy/0/energy_cumulative
+          unit : 'kWh'
+          float: [0, 999999990000]
+        - address : installation_location/0/type
+          enum: [living_room, dining_room, kitchen, bathroom, lavatory, washroom_changing_room, passageway, room, stairway, front_door, storeroom, garden_perimeter, garage, veranda_balcony, others, free_definition, not_specified, indifinite, position_information]
+        - address : fault_status/0/value
+          enum: [no_fault, fault]
+      actuators:
+        - address : installation_location/0/type
+          enum: [living_room, dining_room, kitchen, bathroom, lavatory, washroom_changing_room, passageway, room, stairway, front_door, storeroom, garden_perimeter, garage, veranda_balcony, others, free_definition, not_specified, indifinite, position_information]
+
+  two_way_meter:
+    p_type: two_way_meter
+    p_id: '0' # deprecated
+    updated_at: null
+    status: null
+    version: null
+    metadata:
+      sensors:
+        - address : electric_energy/0/energy
+          unit : 'w'
+          int: [0, 1000]
+        - address : electric_energy/0/energy_cumulative
+          unit : 'kWh'
+          float: [0, 999999990000]
+        - address : electric_energy/1/energy
+          unit : 'w'
+          int: [0, 1000]
+        - address : electric_energy/1/energy_cumulative
+          unit : 'kWh'
+          float: [0, 999999990000]
+        - address : installation_location/0/type
+          enum: [living_room, dining_room, kitchen, bathroom, lavatory, washroom_changing_room, passageway, room, stairway, front_door, storeroom, garden_perimeter, garage, veranda_balcony, others, free_definition, not_specified, indifinite, position_information]
+        - address : fault_status/0/value
+          enum: [no_fault, fault]
+      actuators:
+        - address : installation_location/0/type
+          enum: [living_room, dining_room, kitchen, bathroom, lavatory, washroom_changing_room, passageway, room, stairway, front_door, storeroom, garden_perimeter, garage, veranda_balcony, others, free_definition, not_specified, indifinite, position_information]

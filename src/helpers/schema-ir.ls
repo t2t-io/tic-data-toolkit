@@ -103,6 +103,63 @@ class Loader extends Parser
             self.append-output "annotations: '#{JSON.stringify annotations}'", 4
     return self.output.join '\n'
 
+  to-device-prototyping-yaml: ->
+    {p-types-ordered} = self = @
+    self.reset-output!
+    self.append-output "device_prototype:"
+    for p in p-types-ordered
+      {sensor-types} = p
+      continue unless sensor-types.length > 0
+      self.append-output ""
+      self.append-output "#{p.name}:", 1
+      self.append-output "p_type: #{p.name}", 2
+      self.append-output "p_id: '0' # deprecated", 2
+      self.append-output "updated_at: null", 2
+      self.append-output "status: null", 2
+      self.append-output "version: null", 2
+      self.append-output "metadata:", 2
+      self.append-output "sensors:", 3
+      for st in sensor-types
+        {sensor-instances} = st
+        for si in sensor-instances
+          {field-types} = st
+          for ft in field-types
+            {value-type, value-unit, writeable, description} = ft
+            self.append-output "- address : #{st.name}/#{si.id}/#{ft.name}", 4
+            self.append-output "unit : '#{value-unit}'", 5 if value-unit? and \string is typeof value-unit and '' != value-unit
+            # self.append-output "writeable : #{writeable}", 5
+            self.append-output "description: '#{description}'", 5 if description? and \string is typeof description and '' != description
+            if value-type in <[enum boolean]>
+              self.append-output "enum: [#{ft.value-range.join ', '}]", 5
+            else if value-type in <[int float]>
+              self.append-output "#{value-type}: [#{ft.value-range.join ', '}]", 5
+              self.append-output "precision: #{ft.value-incremental}", 5 if ft.value-incremental?
+            else
+              self.append-output "# unsupported type: #{value-type}, #{JSON.stringify ft.value-range}", 5
+
+      self.spec-actuator-output-flag = no
+      for st in sensor-types
+        {sensor-instances} = st
+        for si in sensor-instances
+          {field-types} = st
+          writeable-field-types = [ ft for ft in field-types when ft.writeable ]
+          continue unless writeable-field-types.length > 0
+          if not self.spec-actuator-output-flag
+            self.spec-actuator-output-flag = yes
+            self.append-output "actuators:", 3
+          for ft in writeable-field-types
+            {value-type, value-unit, description} = ft
+            self.append-output "- address : #{st.name}/#{si.id}/#{ft.name}", 4
+            if value-type in <[enum boolean]>
+              self.append-output "enum: [#{ft.value-range.join ', '}]", 5
+            else if value-type in <[int float]>
+              self.append-output "#{value-type}: [#{ft.value-range.join ', '}]", 5
+              self.append-output "precision: #{ft.value-incremental}", 5 if ft.value-incremental?
+            else
+              self.append-output "# unsupported type: #{value-type}, #{JSON.stringify ft.value-range}", 5
+    return self.output.join '\n'
+
+
   to-class-lr-diagram: ->
     {p-types-ordered} = self = @
     self.reset-output [], 4

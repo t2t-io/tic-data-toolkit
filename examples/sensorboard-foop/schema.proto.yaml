@@ -1,0 +1,74 @@
+device_prototype:
+
+  sensorboard:
+    p_type: sensorboard
+    p_id: '0' # deprecated
+    updated_at: null
+    status: null
+    version: null
+    metadata:
+      sensors:
+        - address : humidity/inside/temperature
+          unit : 'degree_c'
+          float: [-40, 80]
+        - address : humidity/inside/humidity
+          unit : '%rH'
+          int: [0, 100]
+        - address : humidity/outside/temperature
+          unit : 'degree_c'
+          float: [-40, 80]
+        - address : humidity/outside/humidity
+          unit : '%rH'
+          int: [0, 100]
+        - address : waterlevel/top1/value
+          enum: [no, yes]
+        - address : waterlevel/top2/value
+          enum: [no, yes]
+        - address : ndir_co2/0/co2
+          unit : 'ppm'
+          int: [400, 10000]
+        - address : ambient_light/0/illuminance
+          unit : 'lux'
+          int: [0, 64000]
+        - address : fan/left/pwm
+          int: [1, 2395]
+        - address : fan/left/percentage
+          unit : '%'
+          int: [0, 100]
+        - address : fan/right/pwm
+          int: [1, 2395]
+        - address : fan/right/percentage
+          unit : '%'
+          int: [0, 100]
+        - address : led/0/pwm
+          int: [1, 2395]
+        - address : led/0/percentage
+          unit : '%'
+          int: [0, 100]
+        - address : pump/0/vibration
+          enum: [no, yes]
+        - address : emoji/0/value
+          int: [0, 600]
+          precision: 1
+        - address : emoji/0/mode
+          enum: [ascii, pre_installed_image, post_installed_image, number, pre_installed_animation, post_installed_animation]
+        - address : emoji/0/index
+          int: [0, 128]
+      actuators:
+        - address : fan/left/pwm
+          int: [1, 2395]
+        - address : fan/left/percentage
+          int: [0, 100]
+        - address : fan/right/pwm
+          int: [1, 2395]
+        - address : fan/right/percentage
+          int: [0, 100]
+        - address : led/0/pwm
+          int: [1, 2395]
+        - address : led/0/percentage
+          int: [0, 100]
+        - address : pump/0/vibration
+          enum: [no, yes]
+        - address : emoji/0/value
+          int: [0, 600]
+          precision: 1

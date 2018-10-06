@@ -11,6 +11,7 @@ argv =
     .command require \../src/ir2csv
     .command require \../src/ir2spec
     .command require \../src/ir2diagram
+    .command require \../src/ir2proto
     .demand 1
     .strict!
     .help!
