@@ -48,7 +48,6 @@ dependencies:
   esprima: \*
   marked: \*
   \marked-terminal : \*
-  \yap-simple-logger : \yagamy4680/yap-simple-logger
   \js-yaml : \*
 
 scripts:

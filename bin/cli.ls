@@ -1,6 +1,6 @@
 #!/usr/bin/env lsc
 #
-logger = require \yap-simple-logger
+logger = require \../src/logger
 logger.init \tic-data-toolkit, __filename
 
 argv =
