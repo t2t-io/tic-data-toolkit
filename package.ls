@@ -27,7 +27,7 @@ author:
 
 description: 'Toolkits for data schema design and simulation for cloud (TIC) of TicTacToe'
 
-version: \0.0.1
+version: \0.1.0
 
 repository:
   type: \git
@@ -53,11 +53,28 @@ dependencies:
 
 scripts:
   build: """
-  rm -vf ./lib/*.js;
-  find src -name '*.ls' | xargs -I{} sh -c "echo compiling {} ...; cat {} | lsc -cp > lib/\\$(basename {} .ls).js"
+  echo "clean up lib directory ..."
+  find ./lib -name '*.js' | xargs -I{} sh -c "rm -vf {}"
+  ./node_modules/browserify/bin/cmd.js \\
+      --node \\
+      --extension=ls \\
+      -t browserify-livescript \\
+      --outfile lib/tic-data-toolkit.raw.js \\
+      ./bin/cli.ls
+  ./node_modules/uglify-es/bin/uglifyjs \\
+      --compress \\
+      --mangle \\
+      --timings \\
+      --verbose \\
+      -o ./lib/tic-data-toolkit.js \\
+      ./lib/tic-data-toolkit.raw.js \\
+      2>&1 | perl -e '$| = 1; $f = "%-" . `tput cols` . "s\\r"; $f =~ s/\\n//; while (<>) {s/\\n//; printf $f, $_;} print "\\n"'
   """
 
 devDependencies:
   \mermaid.cli : \*
+  \browserify-livescript : \^0.2.3
+  \uglify-es : \^3.3.9
+  \browserify : \^16.2.2
 
 optionalDependencies: {}

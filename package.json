@@ -8,7 +8,7 @@
     "url": "https://github.com/yagamy4680"
   },
   "description": "Toolkits for data schema design and simulation for cloud (TIC) of TicTacToe",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "repository": {
     "type": "git",
     "url": ""
@@ -31,10 +31,13 @@
     "js-yaml": "*"
   },
   "scripts": {
-    "build": "rm -vf ./lib/*.js;\nfind src -name '*.ls' | xargs -I{} sh -c \"echo compiling {} ...; cat {} | lsc -cp > lib/\\$(basename {} .ls).js\""
+    "build": "echo \"clean up lib directory ...\"\nfind ./lib -name '*.js' | xargs -I{} sh -c \"rm -vf {}\"\n./node_modules/browserify/bin/cmd.js \\\n    --node \\\n    --extension=ls \\\n    -t browserify-livescript \\\n    --outfile lib/tic-data-toolkit.raw.js \\\n    ./bin/cli.ls\n./node_modules/uglify-es/bin/uglifyjs \\\n    --compress \\\n    --mangle \\\n    --timings \\\n    --verbose \\\n    -o ./lib/tic-data-toolkit.js \\\n    ./lib/tic-data-toolkit.raw.js \\\n    2>&1 | perl -e '$| = 1; $f = \"%-\" . `tput cols` . \"s\\r\"; $f =~ s/\\n//; while (<>) {s/\\n//; printf $f, $_;} print \"\\n\"'"
   },
   "devDependencies": {
-    "mermaid.cli": "*"
+    "mermaid.cli": "*",
+    "browserify-livescript": "^0.2.3",
+    "uglify-es": "^3.3.9",
+    "browserify": "^16.2.2"
   },
   "optionalDependencies": {}
 }
