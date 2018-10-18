@@ -3,7 +3,7 @@
 # file in json format. Please note, this module is shared between `tic-data-toolkit` and `yapps-tt`
 # repository.
 #
-require! <[fs path lodash]>
+require! <[fs path crypto]>
 {lodash_merge, lodash_sortBy} = global.get-bundled-modules!
 {DBG, WARN, INFO, ERR} = global.get-logger __filename
 
@@ -61,6 +61,15 @@ class FieldTypeClass
   init: ->
     return
 
+  get-name: ->
+    return @name
+
+  get-type: ->
+    return @value-type
+
+  get-range: ->
+    return @value-range
+
   get-description: ->
     return if @description? then @description else "''"
 
@@ -84,6 +93,12 @@ class SensorInstanceClass
   init: ->
     return
 
+  get-id: ->
+    return @s_id
+
+  get-annotations: ->
+    return @annotations
+
 
 class SensorTypeClass
   (@spec, @peripheral-type, @verbose) ->
@@ -104,6 +119,13 @@ class SensorTypeClass
     [ f.init! for f in field-types ]
     [ a.init! for a in action-types ]
 
+  get-sensor-ids: ->
+    {sensor-instances} = @
+    xs = [ (x.get-id!) for x in sensor-instances ]
+    return xs
+
+  get-field-types: ->
+    return @field-types
 
 
 class PeripheralTypeClass
@@ -115,6 +137,8 @@ class PeripheralTypeClass
     self.classname = class_name
     INFO "loading #{name.cyan}" if verbose
     self.sensor-types = [ (new SensorTypeClass s, self, verbose) for s in sensor_types ]
+    self.sensor-type-names = [ s.name for s in self.sensor-types ]
+    self.sensor-type-map = { [s.name, s] for s in self.sensor-types }
     self.children = []
 
   add-child: (p) ->
@@ -132,6 +156,12 @@ class PeripheralTypeClass
     return parser.set-root-class self if name is SchemaBaseClassName
     throw new Error "detect a class without parent class, but itself is not #{SchemaBaseClassName} => #{name}"
 
+  get-sensor-type: (s_type) ->
+    return @sensor-type-map[s_type]
+
+  get-sensor-type-names: ->
+    return @sensor-type-names
+
 
 
 class Parser
@@ -146,7 +176,16 @@ class Parser
 
   load: ->
     {spec, filename, verbose} = self = @
-    {peripheral_types, manifest} = spec
+    {content, manifest} = spec
+    throw new Error "missing manifest field" unless manifest?
+    throw new Error "missing content field" unless content?
+    {checksum} = manifest
+    throw new Error "missing checksum field, or type mismatch" unless checksum? and \string is typeof checksum
+    buffer = new Buffer JSON.stringify content
+    sha256 = crypto.createHash \sha256
+    sha256.update buffer
+    throw new Error "checksum verification failure" unless checksum is (sha256.digest \hex)
+    {peripheral_types} = content
     INFO "parser: #{filename}, #{peripheral_types.length} peripheral types."
     self.manifest = manifest
     self.p-types = xs = [ (new PeripheralTypeClass pt, self, verbose) for pt in peripheral_types ]
@@ -171,6 +210,9 @@ class Parser
 
   get-peripheral-types: ->
     return @p-types-ordered
+
+  get-peripheral-type: (p_type) ->
+    return @p-type-map[p_type]
 
 
 constants = {SchemaBaseClassName}

@@ -1,4 +1,4 @@
-require! <[vm]>
+require! <[vm crypto]>
 require! <[lodash esprima livescript async marked js-yaml]>
 TerminalRenderer = require \marked-terminal
 {DBG, WARN, INFO, ERR} = global.get-logger __filename
@@ -339,9 +339,18 @@ class SchemaParser
     [ t.dbg-hierachy! for t in types ]
     peripheral_types = [ p.to-json! for p in types ]
     # peripheral_types = REMOVE_SCHEMA_BASE_CLASS peripheral_types
-    manifest = lodash.merge {format: 2, created_at: (new Date!)}, manifest
-    self.jsonir = jsonir = {manifest, peripheral_types}
-    self.yamlir = yamlir = js-yaml.safeDump jsonir, {skipInvalid: yes, noRefs: yes}
+    content = {peripheral_types}
+    buffer = new Buffer JSON.stringify content
+    sha256 = crypto.createHash \sha256
+    sha256.update buffer
+    checksum = sha256.digest \hex
+    name = \dummy
+    version = \0.0.1
+    format = 2
+    created_at = new Date!
+    manifest = lodash.merge {format, name, version, created_at, checksum}, manifest
+    self.jsonir = jsonir = {manifest, content}
+    self.yamlir = yamlir = js-yaml.safeDump jsonir, {skipInvalid: yes, noRefs: yes, noCompatMode: yes, condenseFlow: yes, lineWidth: 1024, flowLevel: 9}
     return {javascript, highlighted, jsonir, yamlir}
 
   get-ptc-by-name: (name) ->
