@@ -29,6 +29,12 @@ class ActionTypeClass
   init: ->
     return
 
+  get-type: ->
+    return @argument-type
+
+  get-range: ->
+    return @argument-range
+
   get-description: ->
     return if @description? then @description else "''"
 
@@ -38,6 +44,15 @@ class ActionTypeClass
   get-annotations: (sensor-instance=null) ->
     return lodash_merge {}, @annotations unless sensor-instance?
     return lodash_merge {}, @annotations, sensor-instance.annotations
+
+  to-json: (lightweight=no)->
+    {name, argument-type, argument-range, argument-unit, argument-incremental, description} = @
+    type = argument-type
+    range = argument-range
+    unit = argument-unit
+    incremental = argument-incremental
+    return [name, {type, range, description}] if lightweight
+    return {name, type, range, unit, incremental, description}
 
 
 class FieldTypeClass
@@ -76,9 +91,21 @@ class FieldTypeClass
   get-unit: ->
     return if @unit? then @unit else "''"
 
+  is-writeable: ->
+    return @writeable
+
   get-annotations: (sensor-instance=null) ->
     return lodash_merge {}, @annotations unless sensor-instance?
     return lodash_merge {}, @annotations, sensor-instance.annotations
+
+  to-json: (lightweight=no) ->
+    {name, writeable, value-type, value-range, value-incremental, value-unit, description} = @
+    type = value-type
+    range = value-range
+    incremental = value-incremental
+    unit = value-unit
+    return [name, {type, range, description}] if lightweight
+    return {name, type, range, unit, incremental, description}
 
 
 class SensorInstanceClass
@@ -110,7 +137,9 @@ class SensorTypeClass
     INFO "loading #{peripheral-type.name.cyan}/#{name.green} => #{xs.join ', '}" if verbose
     self.sensor-instances = [ (new SensorInstanceClass i, self, verbose) for i in instances ]
     self.field-types = [ (new FieldTypeClass f, self, verbose) for f in fields ]
+    self.field-type-map = {[f.name, f] for f in self.field-types}
     self.action-types = [ (new ActionTypeClass a, self, verbose) for a in actions ]
+    self.action-type-map = {[a.name, a] for a in self.action-types}
 
   init: ->
     {name, peripheral-type, sensor-instances, field-types, action-types, verbose} = self = @
@@ -126,6 +155,33 @@ class SensorTypeClass
 
   get-field-types: ->
     return @field-types
+
+  get-field-type-names: ->
+    {field-types} = @
+    return [ f.name for f in field-types ]
+
+  get-field-type: (name) ->
+    return @field-type-map[name]
+
+  get-action-type-names: ->
+    {action-types} = @
+    return [ a.name for a in action-types ]
+
+  get-action-type: (name) ->
+    return @action-type-map[name]
+
+  list-actuator-actions: ->
+    {name, field-types, action-types, sensor-instances} = self = @
+    writeable_fields = [ (f.to-json yes) for f in field-types when f.is-writeable! ]
+    extra_actions = [ (a.to-json yes) for a in action-types ]
+    # INFO "sensor/#{name}: writeable_fields: #{writeable_fields.length}"
+    # INFO "sensor/#{name}: extra_actions: #{extra_actions.length}"
+    return null if writeable_fields.length is 0 and extra_actions.length is 0
+    writeable_fields = { ["set_#{f[0]}", f[1]] for f in writeable_fields }
+    extra_actions = { [a[0], a[1]] for a in extra_actions }
+    actions = [] ++ writeable_fields ++ extra_actions
+    actions = { [i.id, actions] for i in sensor-instances }
+    return actions
 
 
 class PeripheralTypeClass
@@ -155,6 +211,9 @@ class PeripheralTypeClass
     return parent.add-child self if parent?
     return parser.set-root-class self if name is SchemaBaseClassName
     throw new Error "detect a class without parent class, but itself is not #{SchemaBaseClassName} => #{name}"
+
+  get-sensor-types: ->
+    return @sensor-types
 
   get-sensor-type: (s_type) ->
     return @sensor-type-map[s_type]
