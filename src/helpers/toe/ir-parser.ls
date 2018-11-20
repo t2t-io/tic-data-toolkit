@@ -129,13 +129,12 @@ class SensorInstanceClass
 
 class SensorTypeClass
   (@spec, @peripheral-type, @verbose) ->
-    {s_type, instances, fields, actions} = spec
+    {s_type, s_identities, fields, actions} = spec
     self = @
     self.name = name = s_type
-    self.instances = instances
-    xs = [ x.s_id.red for x in instances ]
+    self.sensor-identities = s_identities
+    xs = [ x.red for x in s_identities ]
     INFO "loading #{peripheral-type.name.cyan}/#{name.green} => #{xs.join ', '}" if verbose
-    self.sensor-instances = [ (new SensorInstanceClass i, self, verbose) for i in instances ]
     self.field-types = [ (new FieldTypeClass f, self, verbose) for f in fields ]
     self.field-type-map = {[f.name, f] for f in self.field-types}
     self.action-types = [ (new ActionTypeClass a, self, verbose) for a in actions ]
@@ -144,14 +143,11 @@ class SensorTypeClass
   init: ->
     {name, peripheral-type, sensor-instances, field-types, action-types, verbose} = self = @
     INFO "init #{peripheral-type.name}/#{name}" if verbose
-    [ s.init! for s in sensor-instances ]
     [ f.init! for f in field-types ]
     [ a.init! for a in action-types ]
 
   get-sensor-ids: ->
-    {sensor-instances} = @
-    xs = [ (x.get-id!) for x in sensor-instances ]
-    return xs
+    return @sensor-identities
 
   get-field-types: ->
     return @field-types
@@ -177,9 +173,9 @@ class SensorTypeClass
     # INFO "sensor/#{name}: writeable_fields: #{writeable_fields.length}"
     # INFO "sensor/#{name}: extra_actions: #{extra_actions.length}"
     return null if writeable_fields.length is 0 and extra_actions.length is 0
-    writeable_fields = { ["set_#{f[0]}", f[1]] for f in writeable_fields }
-    extra_actions = { [a[0], a[1]] for a in extra_actions }
+    writeable_fields = [["set_#{f[0]}", f[1]] for f in writeable_fields ]
     actions = [] ++ writeable_fields ++ extra_actions
+    actions = { [a[0], a[1]] for a in actions }
     actions = { [i.id, actions] for i in sensor-instances }
     return actions
 

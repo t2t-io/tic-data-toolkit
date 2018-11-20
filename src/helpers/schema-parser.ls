@@ -45,18 +45,57 @@ REMOVE_SCHEMA_BASE_CLASS = (peripheral_types) ->
 
 
 
-
 class SchemaBaseClass
   ->
-    @sensors = {}
-    @actuators = {}
+    @sensor_identities = {}
+    @sensor_actuator_actions = {}
+    @annotation_stores = {}
 
-  declare-sensors: (types-and-identities) ->
-    {sensors} = self = @
-    for st, identities of types-and-identities
-      self.sensors[st] = {}
-      for id in identities
-        self.sensors[st][id] = {}
+  ##
+  # `s_type`, the sensor type
+  # `identities`, the list of possible s_id for the specific sensor type
+  #
+  declareSensorIdentities: (s_type=null, identities=null) ->
+    {sensor_identities} = self = @
+    throw new Error "argument `s_type` for declareSensorIdentities() is null" unless s_type?
+    throw new Error "argument `s_type`(#{s_type}) for declareSensorIdentities() is not string" unless \string is typeof s_type
+    throw new Error "argument `s_type`(#{s_type}) for declareSensorIdentities() is redefined" if sensor_identities[s_type]?
+    throw new Error "argument `identities` for declareSensorIdentities() is null" unless identities?
+    throw new Error "argument `identities` for declareSensorIdentities() is not an json object as array" unless \object is typeof identities and Array.isArray identities
+    throw new Error "argument `identities` for declareSensorIdentities() is an empty array" unless identities.length > 0
+    sensor_identities[s_type] = identities
+    return self
+
+  ##
+  # `s_type`, the sensor type
+  # `actions`, the list of actuator actions for the specific sensor type,
+  #             that cannot be a simple writeable sensor field.
+  #
+  declareSensorActuatorActions: (s_type=null, actions=null) ->
+    {sensor_actuator_actions} = self = @
+    throw new Error "argument `s_type` for declareSensorActuatorActions() is null" unless s_type?
+    throw new Error "argument `s_type`(#{s_type}) for declareSensorActuatorActions() is not string" unless \string is typeof s_type
+    throw new Error "argument `s_type`(#{s_type}) for declareSensorActuatorActions() is redefined" if sensor_actuator_actions[s_type]?
+    throw new Error "argument `actions` for declareSensorActuatorActions() is null" unless actions?
+    throw new Error "argument `actions` for declareSensorActuatorActions() is not an json object as array" unless \object is typeof actions and Array.isArray actions
+    throw new Error "argument `actions` for declareSensorActuatorActions() is an empty array" unless actions.length > 0
+    sensor_actuator_actions[s_type] = actions
+    return self
+
+  ##
+  # `p`, the data-path for annotations in the store; `null` means the annotations for the peripheral-type.
+  # `a`, the annotations.
+  #
+  declareAnnotations: (p=null, annotations=null) ->
+    {annotation_stores} = self = @
+    p = '/' unless p?
+    p = "/#{p}" unless p.startsWith '/'
+    throw new Error "argument `p` for declareAnnotations() is not string" unless \string is typeof p
+    throw new Error "argument `annotations` for declareAnnotations() is null" unless annotations?
+    throw new Error "argument `annotations` for declareAnnotations() is not an json object" unless \object is typeof annotations
+    annotation_stores[p] = annotations
+    return self
+
 
 
 class ActionTypeClass
@@ -174,50 +213,47 @@ class FieldTypeClass
 
 
 class SensorInstanceClass
-  (@parser, @stc, @s_id, @annotations) ->
+  (@parser, @stc, @id) ->
     return
 
   load: ->
     return
 
   to-json: ->
-    {s_id, annotations} = self = @
-    return {s_id, annotations}
+    {id} = self = @
+    s_id = id
+    return {s_id}
 
 
 class SensorTypeClass
-  (@parser, @ptc, @name, @instances, @fields, @actions) ->
-    xs = [ k for k, v of instances ]
+  (@parser, @ptc, @name, @identities, @fields, @actions) ->
     @actions = [] unless @actions?
-    INFO "#{ptc.name}/_/#{name}/[#{xs.join ','}] => fields: #{JSON.stringify fields}"
-    INFO "#{ptc.name}/_/#{name}/[#{xs.join ','}] => actions: #{JSON.stringify @actions}" if @actions.length > 0
+    INFO "#{ptc.name}/_/#{name}/[#{identities.join ','}] => fields: #{JSON.stringify fields}"
+    INFO "#{ptc.name}/_/#{name}/[#{identities.join ','}] => actions: #{JSON.stringify @actions}" if @actions.length > 0
     return
 
   load: ->
-    {parser, ptc, name, instances, fields, actions} = self = @
+    {parser, ptc, name, identities, fields, actions} = self = @
     prefix = "#{ptc.name.cyan}/_/#{name.green}"
     # console.log "#{prefix}: (SensorTypeClass) loading ..."
-    throw new Error "#{prefix} has no s_id object list" unless instances?
-    s_id_list = [ s_id for s_id, annotations of instances ]
-    throw new Error "#{prefix} has s_id list but no elements" if s_id_list.length is 0
+    throw new Error "#{prefix} has no s_id object list" unless identities?
+    throw new Error "#{prefix} has s_id list but no elements" if identities.length is 0
     throw new Error "#{prefix} has no fields" unless fields?
     throw new Error "#{prefix} has field list but not array" unless Array.isArray fields
     throw new Error "#{prefix} has field list but no elements" if fields.length is 0
-    self.sic-list = xs = [ (new SensorInstanceClass parser, self, s_id, annotations) for s_id, annotations of instances ]
     self.ftc-list = ys = [ (new FieldTypeClass parser, self, f, i) for let f, i in fields ]
     self.atc-list = zs = [ (new ActionTypeClass parser, self, a, i) for let a, i in actions ]
-    [ x.load! for x in xs ]
     [ y.load! for y in ys ]
     [ z.load! for z in zs ]
     return
 
   to-json: ->
-    {name, sic-list, ftc-list, atc-list} = self = @
+    {name, ftc-list, atc-list, identities} = self = @
     fields = [ f.to-json! for f in ftc-list ]
     actions = [ a.to-json! for a in atc-list ]
-    instances = [ s.to-json! for s in sic-list ]
     s_type = name
-    return {s_type, instances, fields, actions}
+    s_identities = identities
+    return {s_type, s_identities, fields, actions}
 
 
 class PeripheralTypeClass
@@ -248,10 +284,10 @@ class PeripheralTypeClass
     self.ptc-parent = ptc-parent = if classname is BASE_CLASSNAME then null else parser.get-ptc-by-classname clazz.superclass.displayName
     self.ptc-parent.add-child self if ptc-parent?
     self.ptc-parent-name = ptc-parent-name = if ptc-parent? then ptc-parent.name else null
-    {sensors, actuators} = self.object = obj = new clazz!
+    {sensor_identities, sensor_actuator_actions} = self.object = obj = new clazz!
     # console.log "#{name.cyan}: (PeripheralTypeClass) loading ... => #{JSON.stringify sensors}"
-    throw new Error "#{ptc.name.cyan} has no defined `sensors`" unless sensors? and \object is typeof sensors
-    self.stc-list = xs = [ (new SensorTypeClass parser, self, s_type, s_instances, obj[s_type], actuators[s_type]) for s_type, s_instances of sensors ]
+    throw new Error "#{ptc.name.cyan} has no defined `sensor_identities`" unless sensor_identities? and \object is typeof sensor_identities
+    self.stc-list = xs = [ (new SensorTypeClass parser, self, s_type, identities, obj[s_type], sensor_actuator_actions[s_type]) for s_type, identities of sensor_identities ]
     [ x.load! for x in xs ]
 
   to-json: ->
