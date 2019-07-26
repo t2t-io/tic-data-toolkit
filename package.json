@@ -19,15 +19,15 @@
     "npm": "1.4.x"
   },
   "dependencies": {
-    "lodash": "*",
-    "livescript": "*",
     "async": "*",
-    "yargs": "*",
-    "moment": "*",
     "esprima": "*",
-    "marked": "*",
+    "js-yaml": "^3.13.1",
+    "livescript": "*",
+    "lodash": "^4.17.15",
+    "marked": "^0.7.0",
     "marked-terminal": "*",
-    "js-yaml": "*"
+    "moment": "*",
+    "yargs": "*"
   },
   "scripts": {
     "build": "echo \"clean up lib directory ...\"\nfind ./lib -name '*.js' | xargs -I{} sh -c \"rm -vf {}\"\n./node_modules/browserify/bin/cmd.js \\\n    --node \\\n    --extension=ls \\\n    -t browserify-livescript \\\n    --outfile lib/tic-data-toolkit.raw.js \\\n    ./bin/cli.ls\n./node_modules/uglify-es/bin/uglifyjs \\\n    --compress \\\n    --mangle \\\n    --timings \\\n    --verbose \\\n    -o ./lib/tic-data-toolkit.js \\\n    ./lib/tic-data-toolkit.raw.js \\\n    2>&1 | perl -e '$| = 1; $f = \"%-\" . `tput cols` . \"s\\r\"; $f =~ s/\\n//; while (<>) {s/\\n//; printf $f, $_;} print \"\\n\"'"
