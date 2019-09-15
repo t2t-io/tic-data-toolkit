@@ -132,7 +132,10 @@ class SensorTypeClass
     {s_type, s_identities, fields, actions} = spec
     self = @
     self.name = name = s_type
+    INFO "s-type/#{name}/spec => #{JSON.stringify spec}"
     self.sensor-identities = s_identities
+    self.sensor-identities = [] unless self.sensor-identities? and Array.isArray self.sensor-identities
+    self.sensor-instances = [(self.create-sensor-instance id) for id in self.sensor-identities]
     xs = [ x.red for x in s_identities ]
     INFO "loading #{peripheral-type.name.cyan}/#{name.green} => #{xs.join ', '}" if verbose
     self.field-types = [ (new FieldTypeClass f, self, verbose) for f in fields ]
@@ -145,6 +148,9 @@ class SensorTypeClass
     INFO "init #{peripheral-type.name}/#{name}" if verbose
     [ f.init! for f in field-types ]
     [ a.init! for a in action-types ]
+
+  create-sensor-instance: (s_id, spec) ->
+    instance = new SensorInstanceClass {s_id}, @, @verbose
 
   get-sensor-ids: ->
     return @sensor-identities
@@ -168,10 +174,12 @@ class SensorTypeClass
 
   list-actuator-actions: ->
     {name, field-types, action-types, sensor-instances} = self = @
+    DBG "sensor/#{name}: field-types => #{field-types?}"
+    DBG "sensor/#{name}: action-types => #{action-types?}"
     writeable_fields = [ (f.to-json yes) for f in field-types when f.is-writeable! ]
     extra_actions = [ (a.to-json yes) for a in action-types ]
-    # INFO "sensor/#{name}: writeable_fields: #{writeable_fields.length}"
-    # INFO "sensor/#{name}: extra_actions: #{extra_actions.length}"
+    DBG "sensor/#{name}: writeable_fields: #{writeable_fields.length}"
+    DBG "sensor/#{name}: extra_actions: #{extra_actions.length}"
     return null if writeable_fields.length is 0 and extra_actions.length is 0
     writeable_fields = [["set_#{f[0]}", f[1]] for f in writeable_fields ]
     actions = [] ++ writeable_fields ++ extra_actions
