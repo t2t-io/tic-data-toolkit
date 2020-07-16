@@ -23,7 +23,7 @@
     "esprima": "*",
     "js-yaml": "^3.13.1",
     "livescript": "*",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.19",
     "marked": "^0.7.0",
     "marked-terminal": "*",
     "moment": "*",
