@@ -24,7 +24,7 @@
     "js-yaml": "^3.13.1",
     "livescript": "*",
     "lodash": "^4.17.15",
-    "marked": "^0.7.0",
+    "marked": "^4.0.10",
     "marked-terminal": "*",
     "moment": "*",
     "yargs": "*"
